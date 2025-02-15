@@ -3,11 +3,8 @@
 import * as React from "react";
 import {
   BookOpen,
-  Bot,
   Command,
-  Frame,
   LifeBuoy,
-  Map,
   PieChart,
   Send,
   Settings2,
@@ -16,6 +13,7 @@ import {
 import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +23,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavMain } from "./nav-main";
 
 const data = {
   user: {
@@ -32,6 +31,29 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
+
+  navMain: [
+    {
+      title: "Configurações",
+      url: "#",
+      icon: Settings2,
+      isActive: true,
+      items: [
+        {
+          title: "Serviços",
+          url: "/manage/services",
+        },
+        {
+          title: "Time",
+          url: "/manage/professionals",
+        },
+        {
+          title: "Endereço",
+          url: "/manage/addresses",
+        },
+      ],
+    },
+  ],
   navSecondary: [
     {
       title: "Support",
@@ -47,18 +69,13 @@ const data = {
   projects: [
     {
       name: "Agendamentos",
-      url: "#",
+      url: "/",
       icon: BookOpen,
     },
     {
       name: "Dashboard",
-      url: "#",
+      url: "/",
       icon: PieChart,
-    },
-    {
-      name: "Settings",
-      url: "#",
-      icon: Settings2,
     },
   ],
 };
@@ -90,6 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavProjects projects={data.projects} />
+        <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

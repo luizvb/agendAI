@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { BookOpen, Settings2 } from "lucide-react";
-import Image from "next/image";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
