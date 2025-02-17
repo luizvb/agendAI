@@ -123,3 +123,19 @@ export const fetchNext45DaysAppointments = () => {
     (response) => response.json()
   );
 };
+
+export const fetchCompanyProfile = () => {
+  return fetch("http://localhost:3000/api/company-profile").then((response) =>
+    response.json()
+  );
+};
+
+export const updateCompanyProfile = (profile) => {
+  return fetch("http://localhost:3000/api/company-profile", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(profile),
+  }).then((response) => response.json());
+};

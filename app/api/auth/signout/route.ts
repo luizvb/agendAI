@@ -1,12 +1,15 @@
-import { signOut } from "@/auth";
+import { logtoConfig, signOut } from "@/auth";
 
 export async function GET() {
-  await signOut();
-
+  await signOut({ redirect: false });
   return new Response(null, {
     status: 302,
     headers: {
-      Location: "/",
+      Location: `https://uwy86h.logto.app/oidc/session/end?${new URLSearchParams(
+        {
+          post_logout_redirect_uri: `${logtoConfig.baseUrl}`,
+        }
+      )}`,
     },
   });
 }

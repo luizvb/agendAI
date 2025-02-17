@@ -13,6 +13,7 @@ import {
 import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
+import { useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -48,8 +49,8 @@ const data = {
           url: "/manage/professionals",
         },
         {
-          title: "Endereço",
-          url: "/manage/addresses",
+          title: "Perfil da Empresa",
+          url: "/manage/company-profile",
         },
       ],
     },
@@ -81,6 +82,12 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
+
+  const handleSwitchCompany = () => {
+    router.push("/switch-company");
+  };
+
   return (
     <Sidebar
       className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"
@@ -94,13 +101,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div
+                  onClick={() => {}}
+                  className="grid flex-1 text-left text-sm leading-tight"
+                >
                   <span className="truncate font-semibold">
                     Nobre Barbearia
                   </span>
                   {/* <span className="truncate text-xs">Enterprise</span> */}
                 </div>
               </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" onClick={handleSwitchCompany}>
+              Trocar Companhia
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

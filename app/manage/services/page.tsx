@@ -70,15 +70,15 @@ export default function ManageServices() {
 function ServiceForm({ onSubmit }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [duration, setDuration] = useState("");
+  const [durationMin, setDurationMin] = useState("");
   const [price, setPrice] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name, description, duration, price });
+    onSubmit({ name, description, durationMin, price });
     setName("");
     setDescription("");
-    setDuration("");
+    setDurationMin("");
     setPrice("");
   };
 
@@ -97,9 +97,9 @@ function ServiceForm({ onSubmit }) {
         className="mb-2"
       />
       <Input
-        placeholder="Duração"
-        value={duration}
-        onChange={(e) => setDuration(e.target.value)}
+        placeholder="Duração (em minutos)"
+        value={durationMin}
+        onChange={(e) => setDurationMin(e.target.value)}
         className="mb-2"
       />
       <Input
@@ -120,7 +120,7 @@ function ServiceList({ services, onUpdate, onDelete }) {
         <TableRow>
           <TableHead>Nome</TableHead>
           <TableHead>Descrição</TableHead>
-          <TableHead>Duração</TableHead>
+          <TableHead>Duração (minutos)</TableHead>
           <TableHead>Preço</TableHead>
           <TableHead>Ações</TableHead>
         </TableRow>
@@ -143,11 +143,11 @@ function ServiceItem({ service, onUpdate, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(service.name);
   const [description, setDescription] = useState(service.description);
-  const [duration, setDuration] = useState(service.duration);
+  const [durationMin, setDurationMin] = useState(service.durationMin);
   const [price, setPrice] = useState(service.price);
 
   const handleUpdate = () => {
-    onUpdate(service.id, { name, description, duration, price });
+    onUpdate(service.id, { name, description, durationMin, price });
     setIsEditing(false);
   };
 
@@ -174,8 +174,8 @@ function ServiceItem({ service, onUpdate, onDelete }) {
           <TableCell>
             <Input
               placeholder="Duração"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
+              value={durationMin}
+              onChange={(e) => setDurationMin(e.target.value)}
               className="mb-2"
             />
           </TableCell>
@@ -200,7 +200,7 @@ function ServiceItem({ service, onUpdate, onDelete }) {
         <>
           <TableCell>{service.name}</TableCell>
           <TableCell>{service.description}</TableCell>
-          <TableCell>{service.duration}</TableCell>
+          <TableCell>{service.durationMin}</TableCell>
           <TableCell>{service.price}</TableCell>
           <TableCell>
             <Button onClick={() => setIsEditing(true)} className="mr-2">

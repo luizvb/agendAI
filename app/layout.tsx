@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Barber PG",
+  title: "AgendAI",
   description: "Schedule Barber",
 };
 
@@ -27,10 +27,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("RootLayout");
   const session = await auth();
-  console.log("session", session);
-
   return (
     <html lang="en">
       <body
@@ -42,7 +39,7 @@ export default async function RootLayout({
               <SidebarProvider className="flex flex-col">
                 <SiteHeader />
                 <div className="flex flex-1">
-                  <AppSidebar user={session.user} />
+                  <AppSidebar user={session} />
                   <SidebarInset>
                     <div className="flex-grow">{children}</div>
                   </SidebarInset>
