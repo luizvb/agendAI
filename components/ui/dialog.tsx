@@ -7,7 +7,9 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = ({ onOpenChange, ...props }) => (
+  <DialogPrimitive.Root onOpenChange={onOpenChange} {...props} />
+);
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
@@ -109,9 +111,9 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
-const DialogForm = ({ triggerText, children }) => {
+const DialogForm = ({ triggerText, children, onOpenChange }) => {
   return (
-    <Dialog>
+    <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button>{triggerText}</Button>
       </DialogTrigger>

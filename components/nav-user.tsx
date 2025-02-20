@@ -19,15 +19,16 @@ import {
 } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { signOut } from "next-auth/react";
 import { signOutAction } from "@/actions/sign-out-action";
 
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
-  const [name, setName] = useState(user?.name || "");
-  const [phone, setPhone] = useState(user?.phone || "");
+  const [username, setUsername] = useState(user?.decodedToken?.username || "");
+  const [phone, setPhone] = useState(user?.decodedToken?.phone || "");
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
+
+  console.log(user);
 
   return (
     <SidebarMenu>
@@ -41,13 +42,13 @@ export function NavUser({ user }) {
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
                   src={user?.decodedToken?.image}
-                  alt={user?.decodedToken?.name}
+                  alt={user?.decodedToken?.username}
                 />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {user?.decodedToken?.name}
+                  {user?.decodedToken?.username}
                 </span>
                 <span className="truncate text-xs">
                   {user?.decodedToken?.email}
@@ -67,13 +68,13 @@ export function NavUser({ user }) {
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
                     src={user?.decodedToken?.image}
-                    alt={user?.decodedToken?.name}
+                    alt={user?.decodedToken?.username}
                   />
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {user?.decodedToken?.name}
+                    {user?.decodedToken?.username}
                   </span>
                   <span className="truncate text-xs">
                     {user?.decodedToken?.email}
@@ -87,8 +88,8 @@ export function NavUser({ user }) {
                 <div className="flex items-center">
                   <Input
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     placeholder="Nome"
                     className="mt-1 block w-full"
                     disabled={!isEditingName}

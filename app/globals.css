@@ -85,4 +85,21 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  .app-icon {
+    width: 192px;
+    height: 192px;
+  }
+}
+
+.dragging-over {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .7;
+  }
 }

@@ -6,6 +6,8 @@ import { auth } from "@/auth";
 import SignIn from "@/components/sign-in";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
+import { headers } from "next/headers";
+// import { useEffect } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,14 +24,44 @@ export const metadata: Metadata = {
   description: "Schedule Barber",
 };
 
+const publicPages = ["/schedule", "/another-page"]; // Adicione outras páginas conforme necessário
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
+  // Remover o useRouter e usar headers() para obter o pathname
+  const headersList = await headers();
+  console.log("headersList", headersList);
+  const pathname = headersList.get("x-pathname") || "/";
+  const session = publicPages.includes(pathname) ? null : await auth();
+
+  console.log("pathname", pathname);
+
+  // useEffect(() => {
+  //   if ("serviceWorker" in navigator) {
+  //     navigator.serviceWorker
+  //       .register("/sw.js")
+  //       .then((registration) => {
+  //         console.log(
+  //           "Service Worker registered with scope:",
+  //           registration.scope
+  //         );
+  //       })
+  //       .catch((error) => {
+  //         console.error("Service Worker registration failed:", error);
+  //       });
+  //   }
+  // }, []);
+
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href="/icons/icon-192x192.png" />
+        <meta name="theme-color" content="#000000" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -48,7 +80,13 @@ export default async function RootLayout({
             </div>
           </>
         ) : (
-          <SignIn />
+          <>
+            {publicPages.includes(pathname) ? (
+              <div className="flex-grow">{children}</div>
+            ) : (
+              <SignIn />
+            )}
+          </>
         )}
       </body>
     </html>

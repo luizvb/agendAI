@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckIcon } from "lucide-react";
 import {
   Drawer,
@@ -7,6 +7,9 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PhoneInput } from "./phone-input";
 
 export function AppointmentDrawer({
   isDrawerOpen,
@@ -18,6 +21,22 @@ export function AppointmentDrawer({
   resetSelections,
 }) {
   const [isScheduled, setIsScheduled] = useState(false);
+  const [username, setUsername] = useState(
+    localStorage.getItem("username") || ""
+  );
+  const [phoneNumber, setPhoneNumber] = useState(
+    localStorage.getItem("phone_number") || ""
+  );
+  const [needRegister, setNeedRegister] = useState(false);
+
+  useEffect(() => {
+    if (
+      !localStorage.getItem("username") ||
+      !localStorage.getItem("phone_number")
+    ) {
+      setNeedRegister(true);
+    }
+  }, []);
 
   const handleScheduleClick = () => {
     handleSchedule();
@@ -30,9 +49,18 @@ export function AppointmentDrawer({
     resetSelections();
   };
 
+  const handleSaveUserInfo = () => {
+    localStorage.setItem("username", username);
+    localStorage.setItem("phone_number", phoneNumber);
+  };
+
   const formatDateToBrazilian = (date) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(date).toLocaleDateString("pt-BR", options);
+  };
+
+  const handlePhoneNumberChange = (e) => {
+    setPhoneNumber(e);
   };
 
   return (
@@ -49,23 +77,67 @@ export function AppointmentDrawer({
             </p>
           ) : (
             <>
-              <p className="font-bold text-xl">
-                Serviço: <span className="text-blue-500">{service}</span>
-              </p>
-              <p className="font-bold text-xl">
-                Data:{" "}
-                <span className="text-blue-500">
-                  {formatDateToBrazilian(selectedDay)}
-                </span>
-              </p>
-              <p className="font-bold text-xl">
-                Hora: <span className="text-blue-500">{selectedTime}</span>
-              </p>
+              {needRegister ? (
+                <>
+                  <p className="font-bold text-xl mb-4">
+                    Por favor, atualize suas informações uma única vez para
+                    continuar.
+                  </p>
+                  <Label
+                    htmlFor="username"
+                    className="text-left text-lg font-bold"
+                  >
+                    Nome:
+                  </Label>
+                  <Input
+                    id="username"
+                    placeholder="Nome, Sobrenome ou apelido"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="mb-4"
+                  />
+                  <Label
+                    htmlFor="phone_number"
+                    className="text-left text-lg font-bold"
+                  >
+                    Whatsapp:
+                  </Label>
+                  <PhoneInput
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    width={"100%"}
+                  />
+                  <Button
+                    onClick={() => {
+                      handleSaveUserInfo();
+                      setNeedRegister(false);
+                    }}
+                    className="w-full h-16 text-lg mt-4"
+                  >
+                    Salvar Informações
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold text-xl">
+                    Serviço: <span className="text-blue-500">{service}</span>
+                  </p>
+                  <p className="font-bold text-xl">
+                    Data:{" "}
+                    <span className="text-blue-500">
+                      {formatDateToBrazilian(selectedDay)}
+                    </span>
+                  </p>
+                  <p className="font-bold text-xl">
+                    Hora: <span className="text-blue-500">{selectedTime}</span>
+                  </p>
+                </>
+              )}
             </>
           )}
           <Button
             onClick={isScheduled ? handleCheckIconClick : handleScheduleClick}
-            disabled={!selectedDay || !selectedTime || !service}
+            disabled={!selectedDay || !selectedTime || !service || needRegister}
             className={`w-full h-16 text-lg mt-4 ${
               isScheduled ? "bg-green-500" : ""
             }`}
