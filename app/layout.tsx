@@ -32,7 +32,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Remover o useRouter e usar headers() para obter o pathname
-  const headersList = await headers();
+  const headersList = headers();
   console.log("headersList", headersList);
   const pathname = headersList.get("x-pathname") || "/";
   const session = publicPages.includes(pathname) ? null : await auth();
