@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DaySelector } from "@/components/day-selector";
 import { AppointmentDrawer } from "@/components/appointment-drawer";
 import { AppointmentList } from "@/components/appoitment-list";
-import {
-  fetchServices,
-  fetchNext45DaysAppointments,
-  scheduleAppointment,
-  cancelAppointment,
-  fetchAppointmentsByPhone,
-  fetchProfessionalsByService,
-} from "@/services/api";
+import { serviceApi, appointmentApi, professionalApi } from "@/services";
 
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -31,29 +24,23 @@ export default function Home() {
   const [appointments, setAppointments] = useState([]);
   const [selectedProfessional, setSelectedProfessional] = useState(null);
   const [professionals, setProfessionals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchServices().then((data) => setServices(data));
-    const phone = localStorage.getItem("phone_number");
-    if (phone) {
-      fetchAppointmentsByPhone(phone).then((data) => setAppointments(data));
-    }
+    serviceApi.fetchServices().then((data) => {
+      setServices(data);
+      setIsLoading(false);
+    });
   }, []);
 
   useEffect(() => {
-    if (selectedProfessional) {
-      fetchNext45DaysAppointments(selectedProfessional.id).then((data) => {
-        setAvailableDays(data);
-      });
-    }
-  }, [selectedProfessional]);
-
-  useEffect(() => {
     if (selectedService) {
-      fetchProfessionalsByService(selectedService.id).then((data) => {
-        setProfessionals(data);
-      });
+      professionalApi
+        .fetchProfessionalsByService(selectedService.id)
+        .then((data) => {
+          setProfessionals(data);
+        });
     }
   }, [selectedService]);
 
@@ -79,25 +66,26 @@ export default function Home() {
       `${selectedDay.split("T")[0]}T${selectedTime}:00-03:00`
     );
 
-    scheduleAppointment({
-      user: {
-        phone_number: localStorage.getItem("phone_number"),
-        username: localStorage.getItem("username"),
-      },
-      service: { id: selectedService.id },
-      appointmentDate,
-      professional: { id: selectedProfessional.id },
-      company: { id: 1 },
-    })
+    appointmentApi
+      .scheduleAppointment({
+        user: {
+          phone_number: localStorage.getItem("phone_number"),
+          username: localStorage.getItem("username"),
+        },
+        service: { id: selectedService.id },
+        appointmentDate,
+        professional: { id: selectedProfessional.id },
+        organizationId: localStorage.getItem("organization-id"),
+      })
       .then((data) => {
         setAppointmentId(data.id);
         toast({
           title: "Sucesso",
           description: `Agendamento realizado com sucesso!`,
         });
-        fetchAppointmentsByPhone("5511990096054@c.us").then((data) =>
-          setAppointments(data)
-        );
+        appointmentApi
+          .fetchAppointmentsByPhone("5511990096054@c.us")
+          .then((data) => setAppointments(data));
       })
       .catch((error) => {
         console.error("Erro ao agendar o compromisso:", error);
@@ -105,16 +93,16 @@ export default function Home() {
   };
 
   const handleCancel = (id) => {
-    cancelAppointment(id).then(() => {
+    appointmentApi.cancelAppointment(id).then(() => {
       setAppointments((prev) => prev.filter((appt) => appt.id !== id));
       if (id === appointmentId) setAppointmentId(null);
       toast({
         title: "Cancelado",
         description: `Agendamento cancelado com sucesso!`,
       });
-      fetchAppointmentsByPhone("5511990096054@c.us").then((data) =>
-        setAppointments(data)
-      );
+      appointmentApi
+        .fetchAppointmentsByPhone("5511990096054@c.us")
+        .then((data) => setAppointments(data));
     });
   };
 
@@ -165,21 +153,27 @@ export default function Home() {
                   agendar seu atendimento.
                 </p>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-opacity duration-500">
-                  {services.map((service) => (
-                    <Card
-                      key={service.id}
-                      className="cursor-pointer min-h-[150px]"
-                      onClick={() => setSelectedService(service)}
-                    >
-                      <CardHeader>
-                        <CardTitle>{service.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p>{service.description}</p>
-                        <p>R$ {service.price}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {isLoading ? (
+                    <div className="col-span-full flex justify-center items-center min-h-[200px]">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                  ) : (
+                    services.map((service) => (
+                      <Card
+                        key={service.id}
+                        className="cursor-pointer min-h-[150px]"
+                        onClick={() => setSelectedService(service)}
+                      >
+                        <CardHeader>
+                          <CardTitle>{service.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{service.description}</p>
+                          <p>R$ {service.price}</p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -205,20 +199,33 @@ export default function Home() {
                   escolhido.
                 </p>
                 <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 transition-opacity duration-500">
-                  {professionals.map((professional) => (
-                    <Card
-                      key={professional.id}
-                      className="cursor-pointer min-h-[150px]"
-                      onClick={() => setSelectedProfessional(professional)}
-                    >
-                      <CardHeader>
-                        <CardTitle>{professional.name}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p>{professional.bio}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
+                  {isLoading ? (
+                    <div className="col-span-full flex justify-center items-center min-h-[200px]">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                  ) : (
+                    professionals.map((professional) => (
+                      <Card
+                        key={professional.id}
+                        className="cursor-pointer min-h-[150px]"
+                        onClick={() => {
+                          setSelectedProfessional(professional);
+                          appointmentApi
+                            .fetchNext45DaysAppointments(professional.id)
+                            .then((data) => {
+                              setAvailableDays(data);
+                            });
+                        }}
+                      >
+                        <CardHeader>
+                          <CardTitle>{professional.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{professional.bio}</p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -244,21 +251,21 @@ export default function Home() {
                   Selecione uma data e horário disponíveis para agendar seu
                   atendimento.
                 </p>
-                <DaySelector
-                  currentWeek={currentWeek}
-                  handlePreviousDays={handlePreviousDays}
-                  handleNextDays={handleNextDays}
-                  daysToShow={daysToShow}
-                  selectedDay={selectedDay}
-                  selectedTime={selectedTime}
-                  handleDateTimeSelection={handleDateTimeSelection}
-                  bookedTimes={availableDays.reduce((acc, day) => {
-                    acc[day.date] = day.times
-                      .filter((time) => time.booked)
-                      .map((time) => time.time);
-                    return acc;
-                  }, {})}
-                />
+                {isLoading ? (
+                  <div className="flex justify-center items-center min-h-[200px]">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  </div>
+                ) : (
+                  <DaySelector
+                    currentWeek={currentWeek}
+                    handlePreviousDays={handlePreviousDays}
+                    handleNextDays={handleNextDays}
+                    daysToShow={daysToShow}
+                    selectedDay={selectedDay}
+                    selectedTime={selectedTime}
+                    handleDateTimeSelection={handleDateTimeSelection}
+                  />
+                )}
                 <AppointmentDrawer
                   isDrawerOpen={isDrawerOpen}
                   setIsDrawerOpen={setIsDrawerOpen}

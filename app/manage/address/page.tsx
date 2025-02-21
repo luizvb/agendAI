@@ -2,19 +2,27 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DialogForm } from "@/components/ui/dialog";
-import { fetchAddress, updateAddress } from "@/services/api";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { addressApi } from "@/services";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ManageAddress() {
   const [address, setAddress] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchAddress().then((data) => setAddress(data.address));
+    addressApi.fetchAddress().then((data) => setAddress(data.address));
   }, []);
 
-  const handleUpdateAddress = (newAddress) => {
-    updateAddress(newAddress).then((data) => setAddress(data.address));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addressApi.updateAddress(address).then(() => {
+      toast({
+        title: "Endereço atualizado",
+        description: "O endereço foi atualizado com sucesso!",
+      });
+    });
   };
 
   return (
@@ -26,7 +34,7 @@ export default function ManageAddress() {
           </CardHeader>
           <CardContent>
             <DialogForm triggerText="Atualizar Endereço">
-              <AddressForm address={address} onSubmit={handleUpdateAddress} />
+              <AddressForm address={address} onSubmit={handleSubmit} />
             </DialogForm>
           </CardContent>
         </Card>

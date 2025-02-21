@@ -2,12 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DialogForm } from "@/components/ui/dialog";
-import {
-  fetchProfessionals,
-  addProfessional,
-  updateProfessional,
-  deleteProfessional,
-} from "@/services/api";
+import { professionalApi } from "@/services";
 import {
   Table,
   TableHeader,
@@ -24,31 +19,35 @@ export default function ManageProfessionals() {
   const [professionals, setProfessionals] = useState([]);
 
   useEffect(() => {
-    fetchProfessionals().then((data) => setProfessionals(data));
+    professionalApi.fetchProfessionals().then((data) => setProfessionals(data));
   }, []);
 
   const handleAddProfessional = (professional) => {
-    addProfessional(professional).then((data) =>
-      setProfessionals((prev) => [...prev, data])
-    );
+    professionalApi
+      .addProfessional(professional)
+      .then((data) => setProfessionals((prev) => [...prev, data]));
   };
 
   const handleUpdateProfessional = (id, updatedProfessional) => {
-    updateProfessional(id, updatedProfessional).then((data) =>
-      setProfessionals((prev) =>
-        prev.map((professional) =>
-          professional.id === id ? data : professional
+    professionalApi
+      .updateProfessional(id, updatedProfessional)
+      .then((data) =>
+        setProfessionals((prev) =>
+          prev.map((professional) =>
+            professional.id === id ? data : professional
+          )
         )
-      )
-    );
+      );
   };
 
   const handleDeleteProfessional = (id) => {
-    deleteProfessional(id).then(() =>
-      setProfessionals((prev) =>
-        prev.filter((professional) => professional.id !== id)
-      )
-    );
+    professionalApi
+      .deleteProfessional(id)
+      .then(() =>
+        setProfessionals((prev) =>
+          prev.filter((professional) => professional.id !== id)
+        )
+      );
   };
 
   return (

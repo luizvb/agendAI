@@ -14,6 +14,7 @@ import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { useRouter } from "next/navigation";
+import { useOrganization } from "@/hooks/useOrganization";
 
 import {
   Sidebar,
@@ -25,14 +26,9 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
+import { User } from "next-auth";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-
   navMain: [
     {
       title: "Configurações",
@@ -81,7 +77,11 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: User;
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const router = useRouter();
 
   const handleSwitchCompany = () => {
@@ -106,16 +106,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   className="grid flex-1 text-left text-sm leading-tight"
                 >
                   <span className="truncate font-semibold">
-                    Nobre Barbearia
+                    {localStorage.getItem("organization-name") ||
+                      "Carregando..."}
                   </span>
-                  {/* <span className="truncate text-xs">Enterprise</span> */}
                 </div>
               </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" onClick={handleSwitchCompany}>
-              Trocar Companhia
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -126,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={props.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

@@ -20,15 +20,26 @@ import {
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { signOutAction } from "@/actions/sign-out-action";
+import { User } from "next-auth";
 
-export function NavUser({ user }) {
+interface NavUserProps {
+  user: User;
+}
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const [username, setUsername] = useState(user?.decodedToken?.username || "");
-  const [phone, setPhone] = useState(user?.decodedToken?.phone || "");
+  const [username, setUsername] = useState(user?.name || "");
+  const [phone, setPhone] = useState("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
 
-  console.log(user);
+  const userInitials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "U";
 
   return (
     <SidebarMenu>
@@ -40,19 +51,14 @@ export function NavUser({ user }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={user?.decodedToken?.image}
-                  alt={user?.decodedToken?.username}
-                />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage src={user?.image || ""} alt={user?.name || ""} />
+                <AvatarFallback className="rounded-lg">
+                  {userInitials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {user?.decodedToken?.username}
-                </span>
-                <span className="truncate text-xs">
-                  {user?.decodedToken?.email}
-                </span>
+                <span className="truncate font-semibold">{user?.name}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -66,19 +72,14 @@ export function NavUser({ user }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={user?.decodedToken?.image}
-                    alt={user?.decodedToken?.username}
-                  />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage src={user?.image || ""} alt={user?.name || ""} />
+                  <AvatarFallback className="rounded-lg">
+                    {userInitials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    {user?.decodedToken?.username}
-                  </span>
-                  <span className="truncate text-xs">
-                    {user?.decodedToken?.email}
-                  </span>
+                  <span className="truncate font-semibold">{user?.name}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

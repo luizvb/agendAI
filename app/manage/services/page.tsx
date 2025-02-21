@@ -2,12 +2,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DialogForm } from "@/components/ui/dialog";
-import {
-  fetchServices,
-  addService,
-  updateService,
-  deleteService,
-} from "@/services/api";
+import { serviceApi } from "@/services";
 import {
   Table,
   TableHeader,
@@ -23,25 +18,31 @@ export default function ManageServices() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    fetchServices().then((data) => setServices(data));
+    serviceApi.fetchServices().then((data) => setServices(data));
   }, []);
 
   const handleAddService = (service) => {
-    addService(service).then((data) => setServices((prev) => [...prev, data]));
+    serviceApi
+      .addService(service)
+      .then((data) => setServices((prev) => [...prev, data]));
   };
 
   const handleUpdateService = (id, updatedService) => {
-    updateService(id, updatedService).then((data) =>
-      setServices((prev) =>
-        prev.map((service) => (service.id === id ? data : service))
-      )
-    );
+    serviceApi
+      .updateService(id, updatedService)
+      .then((data) =>
+        setServices((prev) =>
+          prev.map((service) => (service.id === id ? data : service))
+        )
+      );
   };
 
   const handleDeleteService = (id) => {
-    deleteService(id).then(() =>
-      setServices((prev) => prev.filter((service) => service.id !== id))
-    );
+    serviceApi
+      .deleteService(id)
+      .then(() =>
+        setServices((prev) => prev.filter((service) => service.id !== id))
+      );
   };
 
   return (
@@ -70,15 +71,15 @@ export default function ManageServices() {
 function ServiceForm({ onSubmit }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [durationMin, setDurationMin] = useState("");
+  const [durationMinutes, setdurationMinutes] = useState(0);
   const [price, setPrice] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name, description, durationMin, price });
+    onSubmit({ name, description, durationMinutes, price });
     setName("");
     setDescription("");
-    setDurationMin("");
+    setdurationMinutes(0);
     setPrice("");
   };
 
@@ -98,8 +99,8 @@ function ServiceForm({ onSubmit }) {
       />
       <Input
         placeholder="Duração (em minutos)"
-        value={durationMin}
-        onChange={(e) => setDurationMin(e.target.value)}
+        value={durationMinutes}
+        onChange={(e) => setdurationMinutes(Number(e.target.value))}
         className="mb-2"
       />
       <Input
@@ -143,11 +144,13 @@ function ServiceItem({ service, onUpdate, onDelete }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(service.name);
   const [description, setDescription] = useState(service.description);
-  const [durationMin, setDurationMin] = useState(service.durationMin);
+  const [durationMinutes, setdurationMinutes] = useState(
+    service.durationMinutes
+  );
   const [price, setPrice] = useState(service.price);
 
   const handleUpdate = () => {
-    onUpdate(service.id, { name, description, durationMin, price });
+    onUpdate(service.id, { name, description, durationMinutes, price });
     setIsEditing(false);
   };
 
@@ -174,8 +177,8 @@ function ServiceItem({ service, onUpdate, onDelete }) {
           <TableCell>
             <Input
               placeholder="Duração"
-              value={durationMin}
-              onChange={(e) => setDurationMin(e.target.value)}
+              value={durationMinutes}
+              onChange={(e) => setdurationMinutes(e.target.value)}
               className="mb-2"
             />
           </TableCell>
@@ -200,7 +203,7 @@ function ServiceItem({ service, onUpdate, onDelete }) {
         <>
           <TableCell>{service.name}</TableCell>
           <TableCell>{service.description}</TableCell>
-          <TableCell>{service.durationMin}</TableCell>
+          <TableCell>{service.durationMinutes}</TableCell>
           <TableCell>{service.price}</TableCell>
           <TableCell>
             <Button onClick={() => setIsEditing(true)} className="mr-2">

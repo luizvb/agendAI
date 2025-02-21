@@ -1,13 +1,31 @@
 import NextAuth from "next-auth";
+import { JWT } from "next-auth/jwt";
+
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    idToken?: string;
+    decodedToken?: any;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    idToken?: string;
+    decodedToken?: any;
+  }
+}
 
 export const logtoConfig = {
   endpoint: "https://uwy86h.logto.app/oidc",
   appId: "p36ogscjg7vcwgz20mg9m",
   appSecret: "SiB7TwbgtU72q9LbVKTP4NLHMpe1IndM",
-  baseUrl: "http://localhost:3001", // Change to your own base URL
+  baseUrl: "http://localhost:3000", // Change to your own base URL
   cookieSecret: "jwgIhsNon95zPpRpBtqxEjzlodRAb1rz", // Auto-generated 32 digit secret
   cookieSecure: process.env.NODE_ENV === "production",
   tenantId: "uwy86h",
+  resources: ["http://localhost:3001"],
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -48,4 +66,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
+  trustHost: true,
 });
