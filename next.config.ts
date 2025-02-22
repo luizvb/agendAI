@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NEXT_PUBLIC_LOGTO_ENDPOINT: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
+    NEXT_PUBLIC_LOGTO_APP_ID: process.env.NEXT_PUBLIC_LOGTO_APP_ID,
+    NEXT_PUBLIC_LOGTO_CALLBACK: process.env.NEXT_PUBLIC_LOGTO_CALLBACK,
+    LOGTO_APP_SECRET: process.env.LOGTO_APP_SECRET,
+    LOGTO_TENANT_ID: process.env.LOGTO_TENANT_ID,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
