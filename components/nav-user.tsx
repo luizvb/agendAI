@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsUpDown, LogOut, Edit3 } from "lucide-react";
+import { ChevronsUpDown, LogOut, Moon, Sun } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,10 +17,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { signOutAction } from "@/actions/sign-out-action";
 import { User } from "next-auth";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 
 interface NavUserProps {
   user: User;
@@ -28,10 +30,12 @@ interface NavUserProps {
 
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const [username, setUsername] = useState(user?.name || "");
-  const [phone, setPhone] = useState("");
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const userInitials = user?.name
     ? user.name
@@ -84,40 +88,27 @@ export function NavUser({ user }: NavUserProps) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <div className="flex items-center">
-                  <Input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Nome"
-                    className="mt-1 block w-full"
-                    disabled={!isEditingName}
-                  />
-                  <Edit3
-                    className="ml-2 cursor-pointer"
-                    onClick={() => setIsEditingName(!isEditingName)}
-                  />
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <div className="flex items-center">
-                  <Input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Celular"
-                    className="mt-1 block w-full"
-                    disabled={!isEditingPhone}
-                  />
-                  <Edit3
-                    className="ml-2 cursor-pointer"
-                    onClick={() => setIsEditingPhone(!isEditingPhone)}
-                  />
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+
+            <DropdownMenuItem asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {mounted && theme === "dark" ? (
+                  <>
+                    <Sun className="h-4 w-4" />
+                    Modo Claro
+                  </>
+                ) : (
+                  <>
+                    <Moon className="h-4 w-4" />
+                    Modo Escuro
+                  </>
+                )}
+              </Button>
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
@@ -125,8 +116,8 @@ export function NavUser({ user }: NavUserProps) {
                 signOutAction();
               }}
             >
-              <LogOut />
-              Log out
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

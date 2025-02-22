@@ -3,11 +3,14 @@
 import * as React from "react";
 import {
   BookOpen,
+  Building2,
   Command,
+  HandPlatterIcon,
   LifeBuoy,
   PieChart,
   Send,
   Settings2,
+  UsersRound,
 } from "lucide-react";
 
 import { NavProjects } from "@/components/nav-projects";
@@ -15,6 +18,7 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { useRouter } from "next/navigation";
 import { useOrganization } from "@/hooks/useOrganization";
+import { useEffect, useState } from "react";
 
 import {
   Sidebar,
@@ -53,26 +57,36 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Support",
+      title: "Suporte",
       url: "#",
       icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
     },
   ],
   projects: [
     {
       name: "Agendamentos",
-      url: "/",
+      url: "/appointments",
       icon: BookOpen,
     },
     {
       name: "Dashboard",
-      url: "/",
+      url: "/dashboard",
       icon: PieChart,
+    },
+    {
+      name: "Serviços",
+      url: "/manage/services",
+      icon: HandPlatterIcon,
+    },
+    {
+      name: "Time",
+      url: "/manage/professionals",
+      icon: UsersRound,
+    },
+    {
+      name: "Perfil da Empresa",
+      url: "/manage/company-profile",
+      icon: Building2,
     },
   ],
 };
@@ -83,10 +97,18 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const router = useRouter();
+  const [orgName, setOrgName] = useState("Carregando...");
 
   const handleSwitchCompany = () => {
     router.push("/switch-company");
   };
+
+  useEffect(() => {
+    const name = localStorage.getItem("organization-name");
+    if (name) {
+      setOrgName(name);
+    }
+  }, []);
 
   return (
     <Sidebar
@@ -105,10 +127,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   onClick={() => {}}
                   className="grid flex-1 text-left text-sm leading-tight"
                 >
-                  <span className="truncate font-semibold">
-                    {localStorage.getItem("organization-name") ||
-                      "Carregando..."}
-                  </span>
+                  <span className="truncate font-semibold">{orgName}</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -117,7 +136,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavProjects projects={data.projects} />
-        <NavMain items={data.navMain} />
+        {/* <NavMain items={data.navMain} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

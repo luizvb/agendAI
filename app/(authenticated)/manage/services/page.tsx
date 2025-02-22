@@ -85,31 +85,48 @@ function ServiceForm({ onSubmit }) {
 
   return (
     <form onSubmit={handleSubmit} className="mb-4">
-      <Input
-        placeholder="Nome"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="mb-2"
-      />
-      <Input
-        placeholder="Descrição"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        className="mb-2"
-      />
-      <Input
-        placeholder="Duração (em minutos)"
-        value={durationMinutes}
-        onChange={(e) => setdurationMinutes(Number(e.target.value))}
-        className="mb-2"
-      />
-      <Input
-        placeholder="Preço"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        className="mb-2"
-      />
-      <Button type="submit">Adicionar Serviço</Button>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Nome do Serviço
+          </label>
+          <Input
+            placeholder="Nome"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Descrição</label>
+          <Input
+            placeholder="Descrição"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Duração (em minutos)
+          </label>
+          <Input
+            type="number"
+            placeholder="Duração (em minutos)"
+            value={durationMinutes}
+            onChange={(e) => setdurationMinutes(Number(e.target.value))}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Preço</label>
+          <Input
+            placeholder="Preço"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit">Adicionar Serviço</Button>
+        </div>
+      </div>
     </form>
   );
 }

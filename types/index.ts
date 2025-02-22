@@ -2,15 +2,38 @@ export interface Organization {
   id: string;
   name: string;
   description?: string;
-  logoUrl?: string;
-  workingHours?: {
-    [key: string]: {
-      open: string;
-      close: string;
-    };
+  logo?: string;
+  address?: {
+    street: string;
+    number: string;
+    complement?: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    zipCode: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  businessHours: {
+    [day: string]: {
+      start: string;
+      end: string;
+    } | null;
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+  };
+  active: boolean;
+  plan: "trial" | "free" | "basic" | "premium";
+  trialStartDate?: string;
+  trialEndDate?: string;
+  trialUsed: boolean;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  isSubscriptionActive: boolean;
+  subscriptionEndDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserOrganization {

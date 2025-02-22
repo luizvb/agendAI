@@ -1,81 +1,58 @@
+import { api } from "@/lib/api";
 import { Organization } from "@/types";
-import { getHeaders, handleUnauthorized } from "./api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+interface BusinessHours {
+  [key: string]: { start: string; end: string } | null;
+}
+
+interface CreateOrganizationData {
+  name: string;
+  description?: string;
+  plan: string;
+  businessHours: BusinessHours;
+  trialStartDate?: Date;
+  trialEndDate?: Date;
+  services?: Array<{ name: string; duration: number; price: number }>;
+  team?: Array<{ name: string; role: string; specialties: string[] }>;
+}
 
 export const organizationService = {
-  async getUserOrganizations(): Promise<Organization[]> {
-    const response = await fetch(`${API_URL}/api/organizations/user`, {
-      headers: getHeaders(),
-    }).then(handleUnauthorized);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch user organizations");
-    }
-
-    return response.json();
+  async createOrganization(
+    data: CreateOrganizationData
+  ): Promise<Organization> {
+    const response = await api.post("/organizations", data);
+    return response.data;
   },
 
-  async getOrganization(organizationId: string): Promise<Organization> {
-    const response = await fetch(
-      `${API_URL}/api/organizations/${organizationId}`,
-      {
-        headers: getHeaders(),
-      }
-    ).then(handleUnauthorized);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch organization");
+  async getOrganization(): Promise<Organization | null> {
+    try {
+      const response = await api.get("/auth/me");
+      return response.data.organization;
+    } catch (error) {
+      return null;
     }
-
-    return response.json();
-  },
-
-  async createOrganization(data: {
-    name: string;
-    description?: string;
-    logoUrl?: string;
-  }): Promise<Organization> {
-    const response = await fetch(`${API_URL}/api/organizations`, {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    }).then(handleUnauthorized);
-
-    if (!response.ok) {
-      throw new Error("Failed to create organization");
-    }
-
-    return response.json();
   },
 
   async updateOrganization(
-    organizationId: string,
-    data: {
-      name?: string;
-      description?: string;
-      logoUrl?: string;
-      businessHours?: {
-        [key: string]: {
-          open: string;
-          close: string;
-        };
-      };
-    }
+    id: string,
+    data: Partial<CreateOrganizationData>
   ): Promise<Organization> {
-    const response = await fetch(
-      `${API_URL}/api/organizations/${organizationId}`,
-      {
-        method: "PUT",
-        headers: getHeaders(),
-        body: JSON.stringify(data),
-      }
-    ).then(handleUnauthorized);
+    const response = await api.put(`/organizations/${id}`, data);
+    return response.data;
+  },
 
-    if (!response.ok) {
-      throw new Error("Failed to update organization");
-    }
+  async activateSubscription(
+    organizationId: string,
+    priceId: string
+  ): Promise<{ url: string }> {
+    const response = await api.post(
+      `/organizations/${organizationId}/subscription`,
+      { priceId }
+    );
+    return response.data;
+  },
 
-    return response.json();
+  async cancelSubscription(organizationId: string): Promise<void> {
+    await api.delete(`/organizations/${organizationId}/subscription`);
   },
 };

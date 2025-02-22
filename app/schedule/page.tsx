@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { DaySelector } from "@/components/day-selector";
 import { AppointmentDrawer } from "@/components/appointment-drawer";
 import { AppointmentList } from "@/components/appoitment-list";
-import { serviceApi, appointmentApi, professionalApi } from "@/services";
+import { serviceApi, appointmentService, professionalApi } from "@/services";
+import { clientService } from "@/services/clientService";
 
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -26,6 +27,8 @@ export default function Home() {
   const [professionals, setProfessionals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
     serviceApi.fetchServices().then((data) => {
@@ -44,6 +47,12 @@ export default function Home() {
     }
   }, [selectedService]);
 
+  useEffect(() => {
+    clientService.list().then((data) => {
+      setClients(data);
+    });
+  }, []);
+
   const handleDateTimeSelection = (date, time) => {
     setSelectedDay(date);
     setSelectedTime(time);
@@ -55,55 +64,71 @@ export default function Home() {
       !selectedDay ||
       !selectedTime ||
       !selectedService?.id ||
-      !selectedProfessional?.id
+      !selectedProfessional?.id ||
+      !selectedClient?.id
     ) {
-      console.error("Dados insuficientes para agendar o compromisso");
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos necessários",
+        variant: "destructive",
+      });
       return;
     }
 
-    console.log(selectedDay, selectedTime);
     const appointmentDate = new Date(
       `${selectedDay.split("T")[0]}T${selectedTime}:00-03:00`
     );
 
-    appointmentApi
-      .scheduleAppointment({
-        user: {
-          phone_number: localStorage.getItem("phone_number"),
-          username: localStorage.getItem("username"),
-        },
-        service: { id: selectedService.id },
-        appointmentDate,
-        professional: { id: selectedProfessional.id },
-        organizationId: localStorage.getItem("organization-id"),
+    appointmentService
+      .create({
+        clientId: selectedClient.id,
+        serviceId: selectedService.id,
+        professionalId: selectedProfessional.id,
+        startTime: appointmentDate.toISOString(),
       })
       .then((data) => {
         setAppointmentId(data.id);
         toast({
           title: "Sucesso",
-          description: `Agendamento realizado com sucesso!`,
+          description: "Agendamento realizado com sucesso!",
         });
-        appointmentApi
-          .fetchAppointmentsByPhone("5511990096054@c.us")
+
+        appointmentService
+          .list(selectedClient.id)
           .then((data) => setAppointments(data));
       })
       .catch((error) => {
         console.error("Erro ao agendar o compromisso:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao realizar o agendamento",
+          variant: "destructive",
+        });
       });
   };
 
   const handleCancel = (id) => {
-    appointmentApi.cancelAppointment(id).then(() => {
-      setAppointments((prev) => prev.filter((appt) => appt.id !== id));
-      if (id === appointmentId) setAppointmentId(null);
-      toast({
-        title: "Cancelado",
-        description: `Agendamento cancelado com sucesso!`,
+    appointmentService
+      .delete(id)
+      .then(() => {
+        setAppointments((prev) => prev.filter((appt) => appt.id !== id));
+        if (id === appointmentId) setAppointmentId(null);
+        toast({
+          title: "Cancelado",
+          description: `Agendamento cancelado com sucesso!`,
+        });
+        appointmentService
+          .list(selectedClient.id)
+          .then((data) => setAppointments(data));
+      })
+      .catch((error) => {
+        console.error("Erro ao cancelar o compromisso:", error);
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao cancelar o agendamento",
+          variant: "destructive",
+        });
       });
-      appointmentApi
-        .fetchAppointmentsByPhone("5511990096054@c.us")
-        .then((data) => setAppointments(data));
-    });
   };
 
   const handleNextDays = () => {
@@ -210,8 +235,8 @@ export default function Home() {
                         className="cursor-pointer min-h-[150px]"
                         onClick={() => {
                           setSelectedProfessional(professional);
-                          appointmentApi
-                            .fetchNext45DaysAppointments(professional.id)
+                          appointmentService
+                            .list(selectedClient.id)
                             .then((data) => {
                               setAvailableDays(data);
                             });
@@ -274,6 +299,9 @@ export default function Home() {
                   selectedTime={selectedTime}
                   handleSchedule={handleSchedule}
                   resetSelections={resetSelections}
+                  clients={clients}
+                  selectedClient={selectedClient}
+                  onClientSelect={setSelectedClient}
                 />
               </CardContent>
             </Card>

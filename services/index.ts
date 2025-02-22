@@ -8,3 +8,4 @@ export * from "./organizationService";
 export * from "./subscriptionService";
 export * from "./addressApi";
 export * from "./companyProfileApi";
+export * from "./clientApi";

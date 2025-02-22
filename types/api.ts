@@ -1,5 +1,14 @@
-export interface Company {
-  // Add company fields as needed
+export interface Organization {
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  id: number;
+  businessHours: {
+    [key: string]: {
+      open: string;
+      close: string;
+    };
+  };
 }
 
 export interface Service {
@@ -34,7 +43,7 @@ export interface User {
 }
 
 export interface Appointment {
-  company: Company;
+  organization: Organization;
   service: Service;
   professional: Professional;
   user: User;

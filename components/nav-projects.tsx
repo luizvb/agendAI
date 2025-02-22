@@ -7,6 +7,7 @@ import {
   Trash2,
   type LucideIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -35,6 +36,7 @@ export function NavProjects({
   }[];
 }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -43,10 +45,10 @@ export function NavProjects({
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <button onClick={() => router.push(item.url)}>
                 <item.icon />
                 <span>{item.name}</span>
-              </a>
+              </button>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

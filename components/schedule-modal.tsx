@@ -1,11 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { appointmentApi } from "@/services";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { appointmentApi, clientApi } from "@/services";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Client } from "@/types/client";
 
 export function ScheduleModal({
   showScheduleModal,
@@ -18,35 +27,99 @@ export function ScheduleModal({
   setSelectedProfessional,
   selectedDate,
   setSelectedDate,
-  availableSlots,
-  setAvailableSlots,
+  availableDays,
   onScheduleSuccess,
 }) {
   const { toast } = useToast();
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [availableClients, setAvailableClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [newClientName, setNewClientName] = useState("");
+  const [newClientPhone, setNewClientPhone] = useState("");
+  const [isNewClient, setIsNewClient] = useState(false);
+
+  // Criar um array com as datas disponíveis
+  const availableDates = availableDays.map((day) => new Date(day.date));
+
+  useEffect(() => {
+    if (showScheduleModal) {
+      clientApi.list().then((clients) => {
+        setAvailableClients(clients);
+      });
+    }
+  }, [showScheduleModal]);
+
+  useEffect(() => {
+    if (
+      showScheduleModal &&
+      selectedService &&
+      selectedProfessional &&
+      availableDays
+    ) {
+      const todaySlots = availableDays.find(
+        (day) =>
+          day.date.split("T")[0] === selectedDate.toISOString().split("T")[0]
+      );
+
+      setAvailableSlots(todaySlots?.times || []);
+    }
+  }, [
+    showScheduleModal,
+    selectedService,
+    selectedProfessional,
+    availableDays,
+    selectedDate,
+  ]);
+
+  const resetModal = () => {
+    setShowScheduleModal(false);
+    setSelectedService(null);
+    setAvailableSlots([]);
+    setSelectedClient(null);
+    setNewClientName("");
+    setNewClientPhone("");
+    setIsNewClient(false);
+  };
 
   const handleServiceSelection = (service) => {
     setSelectedService(service);
     const professionalToUse = selectedProfessional || professionals[0];
     if (professionalToUse) {
       setSelectedProfessional(professionalToUse);
-      appointmentApi
-        .fetchNext45DaysAppointments(professionalToUse.id)
-        .then((data) => {
-          const todaySlots = data.find(
-            (day) =>
-              day.date.split("T")[0] ===
-              selectedDate.toISOString().split("T")[0]
-          );
-          setAvailableSlots(todaySlots?.times || []);
-        });
     }
   };
 
-  const handleScheduleAppointment = async (time) => {
+  const handleProfessionalSelection = (professional) => {
+    setSelectedProfessional(professional);
+  };
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+  };
+
+  const handleScheduleAppointment = async (time: string) => {
     if (!selectedService || !selectedProfessional) {
       toast({
         title: "Erro",
         description: "Selecione um serviço e profissional",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedClient && !isNewClient) {
+      toast({
+        title: "Erro",
+        description: "Selecione um cliente ou cadastre um novo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isNewClient && (!newClientName || !newClientPhone)) {
+      toast({
+        title: "Erro",
+        description: "Preencha o nome e telefone do novo cliente",
         variant: "destructive",
       });
       return;
@@ -57,15 +130,20 @@ export function ScheduleModal({
     appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
     try {
-      await appointmentApi.scheduleAppointment({
-        service: { id: selectedService.id },
-        professional: { id: selectedProfessional.id },
-        appointmentDate: appointmentDate.toISOString(),
-        organizationId: localStorage.getItem("organization-id"),
-        user: {
-          phone_number: localStorage.getItem("phone_number"),
-          username: localStorage.getItem("username"),
-        },
+      let client = selectedClient;
+
+      if (isNewClient) {
+        client = await clientApi.create({
+          name: newClientName,
+          phoneNumber: newClientPhone,
+        });
+      }
+
+      await appointmentApi.create({
+        clientId: client.id,
+        serviceId: selectedService.id,
+        professionalId: selectedProfessional.id,
+        startTime: appointmentDate.toISOString(),
       });
 
       toast({
@@ -73,170 +151,202 @@ export function ScheduleModal({
         description: "Agendamento realizado com sucesso!",
       });
 
-      setShowScheduleModal(false);
-      setSelectedService(null);
       onScheduleSuccess();
+      resetModal();
     } catch (error) {
+      console.error("Erro ao agendar:", error);
       toast({
         title: "Erro",
-        description: "Erro ao realizar agendamento",
+        description: "Não foi possível realizar o agendamento.",
         variant: "destructive",
       });
     }
   };
 
-  return (
-    <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          setShowScheduleModal(false);
-          setSelectedService(null);
-          setAvailableSlots([]);
-        }
-      }}
-    >
-      <div className="w-full h-full md:h-auto flex items-center justify-center">
-        <div className="bg-background w-full h-full md:w-[600px] md:min-h-[500px] md:max-h-[80vh] md:rounded-lg overflow-hidden">
-          <div className="sticky top-0 bg-background z-10 p-4 md:p-6 border-b">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg md:text-xl font-semibold">
-                Novo Agendamento
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setShowScheduleModal(false);
-                  setSelectedService(null);
-                  setAvailableSlots([]);
-                }}
-              >
-                ✕
-              </Button>
-            </div>
-          </div>
+  const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      resetModal();
+    }
+  };
 
-          <div className="overflow-y-auto h-[calc(100%-73px)]">
-            <div className="p-4 md:p-6">
-              {!selectedService ? (
+  return (
+    showScheduleModal && (
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        onClick={handleClickOutside}
+      >
+        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Novo Agendamento</CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={resetModal}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">
+                  Selecione o Serviço
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {services.map((service) => (
+                    <Card
+                      key={service.id}
+                      className={`cursor-pointer ${
+                        selectedService?.id === service.id
+                          ? "border-2 border-primary"
+                          : ""
+                      }`}
+                      onClick={() => handleServiceSelection(service)}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-base">
+                          {service.name}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-500">
+                          Duração: {service.durationMinutes} minutos
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Preço: R${" "}
+                          {typeof service.price === "number"
+                            ? service.price.toFixed(2)
+                            : "0,00"}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {selectedService && (
                 <div>
                   <h3 className="text-lg font-medium mb-4">
-                    Escolha um Serviço
+                    Selecione o Profissional
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {services.map((service) => (
+                    {professionals.map((professional) => (
                       <Card
-                        key={service.id}
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
-                        onClick={() => handleServiceSelection(service)}
+                        key={professional.id}
+                        className={`cursor-pointer ${
+                          selectedProfessional?.id === professional.id
+                            ? "border-2 border-primary"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleProfessionalSelection(professional)
+                        }
                       >
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            {service.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-muted-foreground">
-                            {service.description}
-                          </p>
-                          <p className="text-sm font-medium mt-2">
-                            R$ {service.price}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedService(null);
-                      setAvailableSlots([]);
-                    }}
-                    className="mb-4"
-                  >
-                    ← Voltar aos serviços
-                  </Button>
-                  <div className="space-y-6">
-                    <div className="mb-6">
-                      <h3 className="text-lg font-medium mb-4">
-                        Detalhes do Agendamento
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Serviço: {selectedService.name}
-                      </p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Profissional</h3>
-                      <div className="flex gap-2 overflow-x-auto pb-2">
-                        {professionals.map((professional) => (
-                          <Avatar
-                            key={professional.id}
-                            className={`mt-2 ml-2 cursor-pointer transition-all hover:ring-2 hover:ring-primary ${
-                              selectedProfessional?.id === professional.id
-                                ? "ring-2 ring-primary"
-                                : ""
-                            }`}
-                            onClick={() => {
-                              setSelectedProfessional(professional);
-                              appointmentApi
-                                .fetchNext45DaysAppointments(professional.id)
-                                .then((data) => {
-                                  const todaySlots = data.find(
-                                    (day) =>
-                                      day.date.split("T")[0] ===
-                                      selectedDate.toISOString().split("T")[0]
-                                  );
-                                  setAvailableSlots(todaySlots?.times || []);
-                                });
-                            }}
-                          >
+                        <CardHeader className="flex flex-row items-center gap-4">
+                          <Avatar>
                             <AvatarImage
                               src={professional.avatarUrl}
                               alt={professional.name}
                             />
                             <AvatarFallback>
-                              {professional.name.substring(0, 2).toUpperCase()}
+                              {professional.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
                             </AvatarFallback>
                           </Avatar>
-                        ))}
-                      </div>
-                    </div>
+                          <CardTitle className="text-base">
+                            {professional.name}
+                          </CardTitle>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">Data</h3>
-                      <div className="flex items-center gap-2 mb-4">
+              {selectedProfessional && (
+                <>
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">
+                      Selecione o Cliente
+                    </h3>
+                    <div className="space-y-4">
+                      {!isNewClient ? (
+                        <>
+                          <Select
+                            value={selectedClient?.id?.toString()}
+                            onValueChange={(value) => {
+                              const client = availableClients.find(
+                                (c) => c.id.toString() === value
+                              );
+                              setSelectedClient(client || null);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione um cliente" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableClients.map((client) => (
+                                <SelectItem
+                                  key={client.id}
+                                  value={client.id.toString()}
+                                >
+                                  {client.name} - {client.phoneNumber}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsNewClient(true)}
+                          >
+                            Novo Cliente
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="space-y-4">
+                          <Input
+                            placeholder="Nome do cliente"
+                            value={newClientName}
+                            onChange={(e) => setNewClientName(e.target.value)}
+                          />
+                          <Input
+                            placeholder="Telefone"
+                            value={newClientPhone}
+                            onChange={(e) => setNewClientPhone(e.target.value)}
+                          />
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsNewClient(false)}
+                          >
+                            Voltar para lista de clientes
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">
+                      Selecione o Horário
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
                         <Button
                           variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(selectedDate.getDate() - 1);
-                            setSelectedDate(newDate);
-                            if (selectedProfessional) {
-                              appointmentApi
-                                .fetchNext45DaysAppointments(
-                                  selectedProfessional.id
-                                )
-                                .then((data) => {
-                                  const todaySlots = data.find(
-                                    (day) =>
-                                      day.date.split("T")[0] ===
-                                      newDate.toISOString().split("T")[0]
-                                  );
-                                  setAvailableSlots(todaySlots?.times || []);
-                                });
-                            }
-                          }}
+                          onClick={() =>
+                            handleDateChange(
+                              new Date(
+                                selectedDate.setDate(selectedDate.getDate() - 1)
+                              )
+                            )
+                          }
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <span className="text-sm">
+                        <span className="text-lg">
                           {selectedDate.toLocaleDateString("pt-BR", {
                             weekday: "long",
                             day: "numeric",
@@ -245,70 +355,47 @@ export function ScheduleModal({
                         </span>
                         <Button
                           variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            const newDate = new Date(selectedDate);
-                            newDate.setDate(selectedDate.getDate() + 1);
-                            setSelectedDate(newDate);
-                            if (selectedProfessional) {
-                              appointmentApi
-                                .fetchNext45DaysAppointments(
-                                  selectedProfessional.id
-                                )
-                                .then((data) => {
-                                  const todaySlots = data.find(
-                                    (day) =>
-                                      day.date.split("T")[0] ===
-                                      newDate.toISOString().split("T")[0]
-                                  );
-                                  setAvailableSlots(todaySlots?.times || []);
-                                });
-                            }
-                          }}
+                          onClick={() =>
+                            handleDateChange(
+                              new Date(
+                                selectedDate.setDate(selectedDate.getDate() + 1)
+                              )
+                            )
+                          }
                         >
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium mb-2">
-                        Horários Disponíveis
-                      </h3>
-                      {selectedProfessional ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                          {availableSlots.map((slot) => (
-                            <Button
-                              key={slot.time}
-                              variant="outline"
-                              className={`p-4 ${
-                                slot.booked
-                                  ? "opacity-50 cursor-not-allowed"
-                                  : "hover:bg-primary hover:text-primary-foreground"
-                              }`}
-                              disabled={slot.booked}
-                              onClick={() =>
-                                handleScheduleAppointment(slot.time)
-                              }
-                            >
-                              {slot.time}
-                            </Button>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">
-                          Selecione um profissional para ver os horários
-                          disponíveis
-                        </p>
-                      )}
+                      <div className="grid grid-cols-4 gap-2">
+                        {availableSlots.map((slot) => (
+                          <Button
+                            key={slot.time}
+                            variant="outline"
+                            onClick={() => handleScheduleAppointment(slot.time)}
+                          >
+                            {slot.time}
+                          </Button>
+                        ))}
+                        {availableSlots.length === 0 && (
+                          <p className="col-span-4 text-center text-gray-500">
+                            Nenhum horário disponível para este dia.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </>
               )}
+
+              <div className="flex justify-end space-x-2 mt-6">
+                <Button variant="outline" onClick={resetModal}>
+                  Cancelar
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    )
   );
 }

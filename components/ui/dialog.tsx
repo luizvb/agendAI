@@ -111,7 +111,15 @@ const DialogDescription = React.forwardRef<
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
-const DialogForm = ({ triggerText, children, onOpenChange }) => {
+export function DialogForm({
+  triggerText,
+  children,
+  onOpenChange,
+}: {
+  triggerText: any;
+  children: any;
+  onOpenChange?: any;
+}) {
   return (
     <Dialog onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
@@ -121,27 +129,18 @@ const DialogForm = ({ triggerText, children, onOpenChange }) => {
         <DialogHeader>
           <DialogTitle>{triggerText}</DialogTitle>
         </DialogHeader>
-        <DialogClose asChild>
-          <Button variant="outline" className="absolute right-4 top-4">
-            <X className="h-4 w-4" />
-          </Button>
-        </DialogClose>
         {children}
       </DialogContent>
     </Dialog>
   );
-};
+}
 
 export {
   Dialog,
-  DialogPortal,
-  DialogOverlay,
   DialogTrigger,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogFooter,
   DialogTitle,
   DialogDescription,
-  DialogForm,
 };

@@ -1,74 +1,54 @@
-import { getHeaders, handleUnauthorized } from "./api";
-import { AppointmentResponse } from "../types/api";
+import { api } from "@/lib/api";
+import { Appointment, CreateAppointmentDTO } from "@/types/appointment";
 
 export const appointmentApi = {
-  fetchAvailableDays: async () => {
-    return fetch("http://localhost:3001/api/appointments/available-days", {
-      headers: getHeaders(),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  create: async (data: CreateAppointmentDTO): Promise<Appointment> => {
+    const response = await api.post<Appointment>("/appointments", {
+      clientId: data.clientId,
+      serviceId: data.serviceId,
+      professionalId: data.professionalId,
+      startTime: data.startTime,
+    });
+    return response.data;
   },
 
-  scheduleAppointment: async (appointment: any) => {
-    return fetch("http://localhost:3001/api/appointments", {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(appointment),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  list: async (clientId?: number): Promise<Appointment[]> => {
+    const params = clientId ? { clientId } : {};
+    const response = await api.get<Appointment[]>("/appointments", { params });
+    return response.data;
   },
 
-  fetchAppointmentById: async (id: number) => {
-    return fetch(`http://localhost:3001/api/appointments/${id}`, {
-      headers: getHeaders(),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  fetchNext45DaysAppointments: async (id): Promise<Appointment[]> => {
+    const response = await api.get<Appointment[]>(
+      `/appointments/next-45-days/${id}`
+    );
+    return response.data;
   },
 
-  cancelAppointment: async (id: number) => {
-    return fetch(`http://localhost:3001/api/appointments/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-    }).then(handleUnauthorized);
+  getById: async (id: number): Promise<Appointment> => {
+    const response = await api.get<Appointment>(`/appointments/${id}`);
+    return response.data;
   },
 
-  fetchAppointmentsByPhone: async (phone: string) => {
-    return fetch(`http://localhost:3001/api/appointments/phone/${phone}`, {
-      headers: getHeaders(),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  update: async (
+    id: number,
+    data: Partial<CreateAppointmentDTO>
+  ): Promise<Appointment> => {
+    const response = await api.put<Appointment>(`/appointments/${id}`, data);
+    return response.data;
   },
 
-  fetchNext45DaysAppointments: async (professionalId: number) => {
-    return fetch(
-      `http://localhost:3001/api/appointments/next-45-days/${professionalId}`,
-      {
-        headers: getHeaders(),
-      }
-    )
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/appointments/${id}`);
   },
 
-  fetchAppointments: async (): Promise<AppointmentResponse> => {
-    return fetch("http://localhost:3001/api/appointments", {
-      headers: getHeaders(),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
-  },
-
-  updateAppointmentTime: async (id: number, newDateTime: string) => {
-    return fetch(`http://localhost:3001/api/appointments/${id}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify({ appointmentDate: newDateTime }),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  getAvailableTimes: async (
+    date: string,
+    professionalId: number
+  ): Promise<string[]> => {
+    const response = await api.get<string[]>(`/appointments/available-times`, {
+      params: { date, professionalId },
+    });
+    return response.data;
   },
 };

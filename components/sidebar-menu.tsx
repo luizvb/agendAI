@@ -27,29 +27,21 @@ const data = {
         },
       ],
     },
-
     {
-      title: "Settings",
+      title: "Serviços",
+      url: "/manage/services",
+    },
+    {
+      title: "Profissionais",
+      url: "/manage/professionals",
+    },
+    {
+      title: "Endereço",
+      url: "/manage/address",
+    },
+    {
+      title: "Limits",
       url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "Serviços",
-          url: "/manage/services",
-        },
-        {
-          title: "Profissionais",
-          url: "/manage/professionals",
-        },
-        {
-          title: "Endereço",
-          url: "/manage/address",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
     },
   ],
 };

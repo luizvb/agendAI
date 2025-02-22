@@ -7,7 +7,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import SignIn from "@/components/sign-in";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { OrganizationGuard } from "@/components/auth/organization-guard";
+import { OrganizationCheck } from "@/components/organization/OrganizationCheck";
+
 import { meApi } from "@/services";
 
 interface ClientLayoutProps {
@@ -41,7 +42,7 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
   return (
     <SessionProvider>
       {session ? (
-        <OrganizationGuard session={session}>
+        <OrganizationCheck>
           <div className="[--header-height:calc(theme(spacing.14))]">
             <SidebarProvider className="flex flex-col">
               <SiteHeader />
@@ -53,7 +54,7 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
               </div>
             </SidebarProvider>
           </div>
-        </OrganizationGuard>
+        </OrganizationCheck>
       ) : (
         <SignIn />
       )}
