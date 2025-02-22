@@ -9,7 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { OrganizationCheck } from "@/components/organization/OrganizationCheck";
 
-import { meApi } from "@/services";
+import { userApi } from "@/services";
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -23,7 +23,7 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
       localStorage.setItem("session-token-id", session.idToken);
 
       // Buscar dados da organização
-      meApi
+      userApi
         .fetchMe()
         .then((data) => {
           if (data.organizationId) {
