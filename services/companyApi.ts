@@ -1,39 +1,23 @@
-import { getHeaders, handleUnauthorized } from "./api";
+import { api } from "@/lib/api";
 
 export const companyApi = {
   fetchAddress: async () => {
-    const headers = getHeaders();
-    return fetch("http://localhost:3001/api/address", { headers })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+    const response = await api.get("/address");
+    return response.data;
   },
 
-  updateAddress: async (newAddress: string) => {
-    const headers = getHeaders();
-    return fetch("http://localhost:3001/api/address", {
-      method: "PUT",
-      headers,
-      body: JSON.stringify({ address: newAddress }),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  updateAddress: async (data: any) => {
+    const response = await api.put("/address", data);
+    return response.data;
   },
 
   fetchCompanyProfile: async () => {
-    const headers = getHeaders();
-    return fetch("http://localhost:3001/api/company-profile", { headers })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+    const response = await api.get("/company-profile");
+    return response.data;
   },
 
-  updateCompanyProfile: async (profile: any) => {
-    const headers = getHeaders();
-    return fetch("http://localhost:3001/api/company-profile", {
-      method: "PUT",
-      headers,
-      body: JSON.stringify(profile),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  updateCompanyProfile: async (data: any) => {
+    const response = await api.put("/company-profile", data);
+    return response.data;
   },
 };

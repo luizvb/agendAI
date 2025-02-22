@@ -9,14 +9,15 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   async rewrites() {
+    const tenantId = process.env.LOGTO_TENANT_ID;
     return [
       {
         source: "/logto/:path*",
-        destination: "https://uwy86h.logto.app/:path*",
+        destination: `https://${tenantId}.logto.app/:path*`,
       },
       {
         source: "/logto/admin/:path*",
-        destination: "https://uwy86h.logto.app/oidc/:path*",
+        destination: `https://${tenantId}.logto.app/oidc/:path*`,
       },
     ];
   },

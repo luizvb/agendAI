@@ -1,38 +1,30 @@
-import { getHeaders } from "./api";
+import { api } from "@/lib/api";
 
 export const professionalApi = {
   fetchProfessionals: async () => {
-    return fetch("http://localhost:3001/api/professionals", {
-      headers: getHeaders(),
-    }).then((response) => response.json());
+    const response = await api.get("/professionals");
+    return response.data;
   },
 
-  addProfessional: async (professional: any) => {
-    return fetch("http://localhost:3001/api/professionals", {
-      method: "POST",
-      headers: getHeaders(),
-      body: JSON.stringify(professional),
-    }).then((response) => response.json());
+  createProfessional: async (data: any) => {
+    const response = await api.post("/professionals", data);
+    return response.data;
   },
 
-  updateProfessional: async (id: number, updatedProfessional: any) => {
-    return fetch(`http://localhost:3001/api/professionals/${id}`, {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(updatedProfessional),
-    }).then((response) => response.json());
+  getProfessional: async (id: number) => {
+    const response = await api.get(`/professionals/${id}`);
+    return response.data;
   },
 
-  deleteProfessional: async (id: number) => {
-    return fetch(`http://localhost:3001/api/professionals/${id}`, {
-      method: "DELETE",
-      headers: getHeaders(),
-    });
+  updateProfessional: async (id: number, data: any) => {
+    const response = await api.put(`/professionals/${id}`, data);
+    return response.data;
   },
 
   fetchProfessionalsByService: async (serviceId: number) => {
-    return fetch(`http://localhost:3001/api/professionals`, {
-      headers: getHeaders(),
-    }).then((response) => response.json());
+    const response = await api.get(`/professionals`, {
+      params: { serviceId },
+    });
+    return response.data;
   },
 };

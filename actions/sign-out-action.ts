@@ -4,7 +4,8 @@ import { logtoConfig, signOut } from "@/auth";
 import { redirect } from "next/navigation"; // Para Next.js 13+ usando app router
 
 function getSignOutUrl(baseUrl: string): string {
-  return `https://uwy86h.logto.app/oidc/session/end?${new URLSearchParams({
+  const tenantId = process.env.LOGTO_TENANT_ID;
+  return `https://${tenantId}.logto.app/oidc/session/end?${new URLSearchParams({
     post_logout_redirect_uri: `${baseUrl}`,
   })}`;
 }

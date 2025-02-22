@@ -1,21 +1,13 @@
-import { getHeaders, handleUnauthorized } from "./api";
+import { api } from "@/lib/api";
 
 export const addressApi = {
   fetchAddress: async () => {
-    return fetch("http://localhost:3001/api/address", {
-      headers: getHeaders(),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+    const response = await api.get("/address");
+    return response.data;
   },
 
-  updateAddress: async (newAddress: string) => {
-    return fetch("http://localhost:3001/api/address", {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify({ address: newAddress }),
-    })
-      .then(handleUnauthorized)
-      .then((response) => response.json());
+  updateAddress: async (data: any) => {
+    const response = await api.put("/address", data);
+    return response.data;
   },
 };

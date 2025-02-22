@@ -18,14 +18,14 @@ declare module "next-auth/jwt" {
 }
 
 export const logtoConfig = {
-  endpoint: "https://uwy86h.logto.app/oidc",
-  appId: "p36ogscjg7vcwgz20mg9m",
-  appSecret: "SiB7TwbgtU72q9LbVKTP4NLHMpe1IndM",
-  baseUrl: process.env.NEXTAUTH_URL, // Change to your own base URL
-  cookieSecret: "jwgIhsNon95zPpRpBtqxEjzlodRAb1rz", // Auto-generated 32 digit secret
+  endpoint: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
+  appId: process.env.NEXT_PUBLIC_LOGTO_APP_ID,
+  appSecret: process.env.LOGTO_APP_SECRET,
+  baseUrl: process.env.NEXTAUTH_URL || "https://agendai-v1.vercel.app",
+  cookieSecret: process.env.LOGTO_COOKIE_SECRET,
   cookieSecure: process.env.NODE_ENV === "production",
-  tenantId: "uwy86h",
-  resources: ["http://localhost:3001"],
+  tenantId: process.env.LOGTO_TENANT_ID,
+  resources: [process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"],
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({

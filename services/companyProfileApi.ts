@@ -1,17 +1,13 @@
-import { getHeaders } from "./api";
+import { api } from "@/lib/api";
 
 export const companyProfileApi = {
   fetchCompanyProfile: async () => {
-    return fetch("http://localhost:3001/api/company-profile", {
-      headers: getHeaders(),
-    }).then((response) => response.json());
+    const response = await api.get("/company-profile");
+    return response.data;
   },
 
-  updateCompanyProfile: async (profile: any) => {
-    return fetch("http://localhost:3001/api/company-profile", {
-      method: "PUT",
-      headers: getHeaders(),
-      body: JSON.stringify(profile),
-    }).then((response) => response.json());
+  updateCompanyProfile: async (data: any) => {
+    const response = await api.put("/company-profile", data);
+    return response.data;
   },
 };
