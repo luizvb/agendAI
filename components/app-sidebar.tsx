@@ -7,6 +7,7 @@ import {
   Command,
   HandPlatterIcon,
   LifeBuoy,
+  Phone,
   PieChart,
   Send,
   Settings2,
@@ -87,6 +88,11 @@ const data = {
       name: "Perfil da Empresa",
       url: "/manage/company-profile",
       icon: Building2,
+    },
+    {
+      name: "Whatsapp",
+      url: "/whatsapp",
+      icon: Phone,
     },
   ],
 };
