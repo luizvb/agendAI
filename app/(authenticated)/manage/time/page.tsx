@@ -1,13 +1,34 @@
-import React, { useState } from "react";
+"use client";
+
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-function TimeForm({ onSubmit }) {
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [dayOfWeek, setDayOfWeek] = useState("");
+type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
 
-  const handleSubmit = (e) => {
+interface TimeFormData {
+  startTime: string;
+  endTime: string;
+  dayOfWeek: DayOfWeek | "";
+}
+
+interface TimeFormProps {
+  onSubmit: (data: TimeFormData) => void;
+}
+
+export default function TimeForm({ onSubmit }: TimeFormProps) {
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
+  const [dayOfWeek, setDayOfWeek] = useState<DayOfWeek | "">("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     onSubmit({ startTime, endTime, dayOfWeek });
     setStartTime("");
@@ -24,7 +45,9 @@ function TimeForm({ onSubmit }) {
           </label>
           <select
             value={dayOfWeek}
-            onChange={(e) => setDayOfWeek(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setDayOfWeek(e.target.value as DayOfWeek | "")
+            }
             className="w-full border rounded-md p-2"
           >
             <option value="">Selecione um dia</option>
@@ -44,7 +67,9 @@ function TimeForm({ onSubmit }) {
           <Input
             type="time"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setStartTime(e.target.value)
+            }
           />
         </div>
         <div>
@@ -54,7 +79,9 @@ function TimeForm({ onSubmit }) {
           <Input
             type="time"
             value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setEndTime(e.target.value)
+            }
           />
         </div>
         <div className="flex justify-end">
@@ -64,5 +91,3 @@ function TimeForm({ onSubmit }) {
     </form>
   );
 }
-
-export default TimeForm;
