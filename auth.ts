@@ -18,14 +18,26 @@ declare module "next-auth/jwt" {
 }
 
 export const logtoConfig = {
-  endpoint: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
-  appId: process.env.NEXT_PUBLIC_LOGTO_APP_ID,
-  appSecret: process.env.LOGTO_APP_SECRET,
-  baseUrl: "http://localhost:3000",
-  cookieSecret: process.env.LOGTO_COOKIE_SECRET,
+  endpoint:
+    process.env.NEXT_PUBLIC_LOGTO_ENDPOINT ??
+    throwError("NEXT_PUBLIC_LOGTO_ENDPOINT is required"),
+  appId:
+    process.env.NEXT_PUBLIC_LOGTO_APP_ID ??
+    throwError("NEXT_PUBLIC_LOGTO_APP_ID is required"),
+  appSecret:
+    process.env.LOGTO_APP_SECRET ?? throwError("LOGTO_APP_SECRET is required"),
+  baseUrl: process.env.NEXTAUTH_URL ?? throwError("NEXTAUTH_URL is required"),
+  cookieSecret:
+    process.env.LOGTO_COOKIE_SECRET ??
+    throwError("LOGTO_COOKIE_SECRET is required"),
   cookieSecure: process.env.NODE_ENV === "production",
-  tenantId: process.env.LOGTO_TENANT_ID,
+  tenantId:
+    process.env.LOGTO_TENANT_ID ?? throwError("LOGTO_TENANT_ID is required"),
 };
+
+function throwError(message: string): never {
+  throw new Error(`Configuration Error: ${message}`);
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
