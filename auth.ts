@@ -21,7 +21,7 @@ export const logtoConfig = {
   endpoint: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
   appId: process.env.NEXT_PUBLIC_LOGTO_APP_ID,
   appSecret: process.env.LOGTO_APP_SECRET,
-  baseUrl: process.env.NEXTAUTH_URL || "https://agendai-v1.vercel.app",
+  baseUrl: "http://localhost:3000",
   cookieSecret: process.env.LOGTO_COOKIE_SECRET,
   cookieSecure: process.env.NODE_ENV === "production",
   tenantId: process.env.LOGTO_TENANT_ID,
