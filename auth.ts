@@ -21,7 +21,7 @@ export const logtoConfig = {
   endpoint: "https://uwy86h.logto.app/oidc",
   appId: "p36ogscjg7vcwgz20mg9m",
   appSecret: "SiB7TwbgtU72q9LbVKTP4NLHMpe1IndM",
-  baseUrl: "http://localhost:3000", // Change to your own base URL
+  baseUrl: process.env.NEXTAUTH_URL, // Change to your own base URL
   cookieSecret: "jwgIhsNon95zPpRpBtqxEjzlodRAb1rz", // Auto-generated 32 digit secret
   cookieSecure: process.env.NODE_ENV === "production",
   tenantId: "uwy86h",
