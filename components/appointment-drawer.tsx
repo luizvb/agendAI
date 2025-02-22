@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/sheet";
 import { ClientSelect } from "./client-select";
 import { Client } from "@/types/client";
+import { Professional } from "@/types/professional";
+import { useToast } from "@/hooks/use-toast";
 
 interface AppointmentDrawerProps {
   isDrawerOpen: boolean;
@@ -35,6 +37,8 @@ interface AppointmentDrawerProps {
   clients: Client[];
   selectedClient: Client | null;
   onClientSelect: (client: Client) => void;
+  selectedProfessional: Professional | null;
+  onScheduleSuccess?: () => void;
 }
 
 export function AppointmentDrawer({
@@ -48,7 +52,10 @@ export function AppointmentDrawer({
   clients,
   selectedClient,
   onClientSelect,
+  selectedProfessional,
+  onScheduleSuccess,
 }: AppointmentDrawerProps) {
+  const { toast } = useToast();
   const [isScheduled, setIsScheduled] = useState(false);
   const [username, setUsername] = useState(
     localStorage.getItem("username") || ""
@@ -78,9 +85,9 @@ export function AppointmentDrawer({
             selectedProfessional.id
           );
 
-          // Encontrar os horários disponíveis para o dia selecionado
+          // Find available times for the selected day
           const selectedDayData = response.find((day) => {
-            const dayDate = new Date(day.date);
+            const dayDate = new Date(day.startTime);
             const selectedDate = new Date(selectedDay);
             return (
               dayDate.getFullYear() === selectedDate.getFullYear() &&
@@ -90,14 +97,11 @@ export function AppointmentDrawer({
           });
 
           if (selectedDayData) {
-            const availableTimes = selectedDayData.times
-              .map((t) => t.time)
-              .sort((a, b) => {
-                const [aHours, aMinutes] = a.split(":").map(Number);
-                const [bHours, bMinutes] = b.split(":").map(Number);
-                return aHours * 60 + aMinutes - (bHours * 60 + bMinutes);
-              });
-            setAvailableTimes(availableTimes);
+            // Extract time from startTime
+            const time = selectedDayData.startTime
+              .split("T")[1]
+              .substring(0, 5);
+            setAvailableTimes([time]);
           } else {
             setAvailableTimes([]);
           }
@@ -115,9 +119,24 @@ export function AppointmentDrawer({
     fetchAvailableTimes();
   }, [selectedDay, selectedProfessional]);
 
-  const handleScheduleClick = () => {
-    handleSchedule();
-    setIsScheduled(true);
+  const handleScheduleClick = async () => {
+    try {
+      await handleSchedule();
+      toast({
+        title: "Agendamento realizado!",
+        description: "Seu horário foi agendado com sucesso.",
+      });
+      setIsDrawerOpen(false);
+      resetSelections();
+      onScheduleSuccess?.();
+    } catch (error) {
+      toast({
+        title: "Erro no agendamento",
+        description:
+          "Não foi possível realizar o agendamento. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCheckIconClick = () => {
@@ -191,7 +210,7 @@ export function AppointmentDrawer({
             >
               Cancelar
             </Button>
-            <Button onClick={handleSchedule}>Confirmar Agendamento</Button>
+            <Button onClick={handleScheduleClick}>Confirmar Agendamento</Button>
           </div>
         </div>
       </SheetContent>

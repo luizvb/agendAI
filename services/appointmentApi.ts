@@ -1,5 +1,12 @@
 import { api } from "@/lib/api";
-import { Appointment, CreateAppointmentDTO } from "@/types/appointment";
+import { Appointment } from "@/types/api";
+
+interface CreateAppointmentDTO {
+  clientId: number;
+  serviceId: number;
+  professionalId: number;
+  startTime: string;
+}
 
 export const appointmentApi = {
   create: async (data: CreateAppointmentDTO): Promise<Appointment> => {

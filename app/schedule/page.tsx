@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { DaySelector } from "@/components/day-selector";
 import { AppointmentDrawer } from "@/components/appointment-drawer";
 import { AppointmentList } from "@/components/appoitment-list";
-import { serviceApi, appointmentService, professionalApi } from "@/services";
-import { clientService } from "@/services/clientService";
+import { serviceApi, appointmentApi, professionalApi } from "@/services";
+import { clientApi } from "@/services/clientService";
 
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -48,7 +48,7 @@ export default function Home() {
   }, [selectedService]);
 
   useEffect(() => {
-    clientService.list().then((data) => {
+    clientApi.list().then((data) => {
       setClients(data);
     });
   }, []);
@@ -59,7 +59,7 @@ export default function Home() {
     setIsDrawerOpen(true);
   };
 
-  const handleSchedule = () => {
+  const handleSchedule = async () => {
     if (
       !selectedDay ||
       !selectedTime ||
@@ -72,43 +72,25 @@ export default function Home() {
         description: "Por favor, preencha todos os campos necessários",
         variant: "destructive",
       });
-      return;
+      throw new Error("Campos obrigatórios não preenchidos");
     }
 
     const appointmentDate = new Date(
       `${selectedDay.split("T")[0]}T${selectedTime}:00-03:00`
     );
 
-    appointmentService
-      .create({
-        clientId: selectedClient.id,
-        serviceId: selectedService.id,
-        professionalId: selectedProfessional.id,
-        startTime: appointmentDate.toISOString(),
-      })
-      .then((data) => {
-        setAppointmentId(data.id);
-        toast({
-          title: "Sucesso",
-          description: "Agendamento realizado com sucesso!",
-        });
+    await appointmentApi.create({
+      clientId: selectedClient.id,
+      serviceId: selectedService.id,
+      professionalId: selectedProfessional.id,
+      startTime: appointmentDate.toISOString(),
+    });
 
-        appointmentService
-          .list(selectedClient.id)
-          .then((data) => setAppointments(data));
-      })
-      .catch((error) => {
-        console.error("Erro ao agendar o compromisso:", error);
-        toast({
-          title: "Erro",
-          description: "Ocorreu um erro ao realizar o agendamento",
-          variant: "destructive",
-        });
-      });
+    await loadData();
   };
 
   const handleCancel = (id) => {
-    appointmentService
+    appointmentApi
       .delete(id)
       .then(() => {
         setAppointments((prev) => prev.filter((appt) => appt.id !== id));
@@ -117,7 +99,7 @@ export default function Home() {
           title: "Cancelado",
           description: `Agendamento cancelado com sucesso!`,
         });
-        appointmentService
+        appointmentApi
           .list(selectedClient.id)
           .then((data) => setAppointments(data));
       })
@@ -161,6 +143,13 @@ export default function Home() {
     setSelectedProfessional(null);
     setSelectedDay(null);
     setSelectedTime(null);
+  };
+
+  const loadData = async () => {
+    await appointmentApi.list(selectedClient.id).then((data) => {
+      setAppointments(data);
+      setAppointmentId(data[data.length - 1].id);
+    });
   };
 
   return (
@@ -235,8 +224,8 @@ export default function Home() {
                         className="cursor-pointer min-h-[150px]"
                         onClick={() => {
                           setSelectedProfessional(professional);
-                          appointmentService
-                            .list(selectedClient.id)
+                          appointmentApi
+                            .fetchNext45DaysAppointments(professional.id)
                             .then((data) => {
                               setAvailableDays(data);
                             });
@@ -302,6 +291,8 @@ export default function Home() {
                   clients={clients}
                   selectedClient={selectedClient}
                   onClientSelect={setSelectedClient}
+                  selectedProfessional={selectedProfessional}
+                  onScheduleSuccess={loadData}
                 />
               </CardContent>
             </Card>

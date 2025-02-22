@@ -91,7 +91,7 @@ export function CreateOrganizationModal({
             : undefined,
       });
 
-      router.push("/dashboard");
+      router.refresh();
       onClose();
     } catch (err) {
       setError(

@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { appointmentApi, clientApi } from "@/services";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/phone-input";
 import {
   Select,
   SelectContent,
@@ -312,10 +313,11 @@ export function ScheduleModal({
                             value={newClientName}
                             onChange={(e) => setNewClientName(e.target.value)}
                           />
-                          <Input
+                          <PhoneInput
                             placeholder="Telefone"
                             value={newClientPhone}
-                            onChange={(e) => setNewClientPhone(e.target.value)}
+                            onChange={(value) => setNewClientPhone(value || "")}
+                            defaultCountry="BR"
                           />
                           <Button
                             variant="outline"

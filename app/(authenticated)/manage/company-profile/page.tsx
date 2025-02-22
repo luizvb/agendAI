@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface BusinessHours {
   [key: string]: {
-    open: string;
-    close: string;
+    start: string;
+    end: string;
   };
 }
 
@@ -27,13 +27,13 @@ export default function ManageCompanyProfile() {
     name: "",
     description: "",
     businessHours: {
-      monday: { open: "09:00", close: "18:00" },
-      tuesday: { open: "09:00", close: "18:00" },
-      wednesday: { open: "09:00", close: "18:00" },
-      thursday: { open: "09:00", close: "18:00" },
-      friday: { open: "09:00", close: "18:00" },
-      saturday: { open: "09:00", close: "18:00" },
-      sunday: { open: "", close: "" },
+      monday: { start: "09:00", end: "18:00" },
+      tuesday: { start: "09:00", end: "18:00" },
+      wednesday: { start: "09:00", end: "18:00" },
+      thursday: { start: "09:00", end: "18:00" },
+      friday: { start: "09:00", end: "18:00" },
+      saturday: { start: "09:00", end: "18:00" },
+      sunday: { start: "", end: "" },
     },
   });
   const { toast } = useToast();
@@ -49,45 +49,45 @@ export default function ManageCompanyProfile() {
       organization.businessHours || {}
     ).reduce((acc, [day, hours]) => {
       if (!hours) {
-        acc[day] = { open: "", close: "" };
+        acc[day] = { start: "", end: "" };
       } else {
         acc[day] = {
-          open: hours.start || "",
-          close: hours.end || "",
+          start: hours.start || "",
+          end: hours.end || "",
         };
       }
       return acc;
-    }, {} as Record<string, { open: string; close: string }>);
+    }, {} as Record<string, { start: string; end: string }>);
 
     setProfile({
       name: organization.name ?? "",
       description: organization.description ?? "",
       businessHours: {
         monday: convertedBusinessHours.monday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
         tuesday: convertedBusinessHours.tuesday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
         wednesday: convertedBusinessHours.wednesday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
         thursday: convertedBusinessHours.thursday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
         friday: convertedBusinessHours.friday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
         saturday: convertedBusinessHours.saturday ?? {
-          open: "09:00",
-          close: "18:00",
+          start: "09:00",
+          end: "18:00",
         },
-        sunday: convertedBusinessHours.sunday ?? { open: "", close: "" },
+        sunday: convertedBusinessHours.sunday ?? { start: "", end: "" },
       },
     });
     setIsLoading(false);
@@ -102,7 +102,7 @@ export default function ManageCompanyProfile() {
 
   const handleBusinessHoursChange = (
     day: string,
-    type: "open" | "close",
+    type: "start" | "end",
     value: string
   ) => {
     setProfile((prev) => ({
@@ -126,12 +126,12 @@ export default function ManageCompanyProfile() {
       const convertedBusinessHours = Object.entries(
         profile.businessHours
       ).reduce((acc, [day, hours]) => {
-        if (hours.open === "" && hours.close === "") {
+        if (hours.start === "" && hours.end === "") {
           acc[day] = null;
         } else {
           acc[day] = {
-            start: hours.open,
-            end: hours.close,
+            start: hours.start,
+            end: hours.end,
           };
         }
         return acc;
@@ -214,11 +214,11 @@ export default function ManageCompanyProfile() {
                       <span className="w-32">{day.label}</span>
                       <Input
                         type="time"
-                        value={profile.businessHours[day.id]?.open}
+                        value={profile.businessHours[day.id]?.start}
                         onChange={(e) =>
                           handleBusinessHoursChange(
                             day.id,
-                            "open",
+                            "start",
                             e.target.value
                           )
                         }
@@ -227,11 +227,11 @@ export default function ManageCompanyProfile() {
                       <span>até</span>
                       <Input
                         type="time"
-                        value={profile.businessHours[day.id]?.close}
+                        value={profile.businessHours[day.id]?.end}
                         onChange={(e) =>
                           handleBusinessHoursChange(
                             day.id,
-                            "close",
+                            "end",
                             e.target.value
                           )
                         }

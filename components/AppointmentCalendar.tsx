@@ -27,6 +27,13 @@ interface Event {
   professionalId: number;
 }
 
+type DayHours = number;
+
+interface BusinessHours {
+  startHour: DayHours;
+  endHour: DayHours;
+}
+
 export function AppointmentCalendar({
   selectedProfessional,
   onAppointmentMove,
@@ -37,13 +44,14 @@ export function AppointmentCalendar({
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [businessHours, setBusinessHours] = useState({
+  const [businessHours, setBusinessHours] = useState<BusinessHours>({
     startHour: 6,
     endHour: 23,
   });
 
   // Função para obter os horários de funcionamento do dia
   const getBusinessHours = (date: Date) => {
+    console.log(appointmentsData[0]?.organization?.businessHours);
     if (!appointmentsData[0]?.organization?.businessHours) {
       return businessHours;
     }
@@ -57,8 +65,12 @@ export function AppointmentCalendar({
       "friday",
       "saturday",
     ];
+    console.log(date);
     const dayKey = daysOfWeek[date.getDay()];
+    console.log(dayKey);
     const hours = appointmentsData[0].organization.businessHours[dayKey];
+
+    console.log(hours);
 
     if (!hours?.start || !hours?.end) {
       return businessHours;
@@ -76,26 +88,17 @@ export function AppointmentCalendar({
       return;
     }
 
+    console.log("appointmentsData:", appointmentsData);
+    console.log("organization:", appointmentsData[0]?.organization);
+    console.log(
+      "businessHours:",
+      appointmentsData[0]?.organization?.businessHours
+    );
+
     // Configurar horários de funcionamento da empresa
     if (appointmentsData[0]?.organization?.businessHours) {
-      const today = new Date();
-      const daysOfWeek = [
-        "sunday",
-        "monday",
-        "tuesday",
-        "wednesday",
-        "thursday",
-        "friday",
-        "saturday",
-      ];
-      const dayKey = daysOfWeek[today.getDay()];
-      const hours = appointmentsData[0].organization.businessHours[dayKey];
-
-      if (hours?.open && hours?.close) {
-        const [startHour] = hours.open.split(":").map(Number);
-        const [endHour] = hours.close.split(":").map(Number);
-        setBusinessHours({ startHour, endHour });
-      }
+      const hours = getBusinessHours(currentDate);
+      setBusinessHours(hours);
     }
 
     const formattedEvents =
@@ -167,6 +170,7 @@ export function AppointmentCalendar({
   };
 
   const handleNavigate = (date: Date) => {
+    console.log("Navigating to date:", date);
     setCurrentDate(date);
   };
 
@@ -174,7 +178,14 @@ export function AppointmentCalendar({
     ? events.filter((apt) => apt.professionalId === selectedProfessional.id)
     : events;
 
-  const { startHour, endHour } = getBusinessHours(currentDate);
+  useEffect(() => {
+    console.log("Current date changed:", currentDate);
+    if (appointmentsData[0]?.organization?.businessHours) {
+      const hours = getBusinessHours(currentDate);
+      console.log("New business hours:", hours);
+      setBusinessHours(hours);
+    }
+  }, [currentDate, appointmentsData]);
 
   return (
     <div className="h-[calc(100vh-100px)] relative z-0">
@@ -196,19 +207,19 @@ export function AppointmentCalendar({
           month={{
             weekDays: [0, 1, 2, 3, 4, 5, 6],
             weekStartOn: 0,
-            startHour,
-            endHour,
+            startHour: businessHours.startHour as number,
+            endHour: businessHours.endHour as number,
           }}
           week={{
             weekDays: [0, 1, 2, 3, 4, 5, 6],
             weekStartOn: 0,
-            startHour,
-            endHour,
+            startHour: businessHours.startHour as number,
+            endHour: businessHours.endHour as number,
             step: 30,
           }}
           day={{
-            startHour,
-            endHour,
+            startHour: businessHours.startHour as number,
+            endHour: businessHours.endHour as number,
             step: 30,
           }}
           translations={{

@@ -8,6 +8,7 @@ import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { useOrganization } from "@/hooks/useOrganization";
 import { AppointmentCalendar } from "@/components/AppointmentCalendar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ErrorPage } from "@/components/error-page";
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -19,6 +20,10 @@ export default function Home() {
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [availableDays, setAvailableDays] = useState([]);
+  const [error, setError] = useState<{
+    type: "CORS" | "SERVER" | "GENERIC";
+    message: string;
+  } | null>(null);
   const { organization } = useOrganization();
 
   useEffect(() => {
@@ -31,12 +36,26 @@ export default function Home() {
         .fetchNext45DaysAppointments(selectedProfessional.id)
         .then((data) => {
           setAvailableDays(data);
+        })
+        .catch((error) => {
+          handleError(error);
         });
     }
   }, [selectedProfessional]);
 
+  const handleError = (error: any) => {
+    if (error.message?.includes("CORS")) {
+      setError({ type: "CORS", message: error.message });
+    } else if (error.response?.status === 500) {
+      setError({ type: "SERVER", message: error.message });
+    } else {
+      setError({ type: "GENERIC", message: error.message });
+    }
+  };
+
   const loadData = async () => {
     try {
+      setError(null);
       const [appointmentsData, professionalsData, servicesData] =
         await Promise.all([
           appointmentApi.list(),
@@ -44,11 +63,21 @@ export default function Home() {
           serviceApi.fetchServices(),
         ]);
 
+      console.log("Appointments data:", appointmentsData);
+      console.log(
+        "First appointment organization:",
+        appointmentsData[0]?.organization
+      );
+      console.log(
+        "Business hours:",
+        appointmentsData[0]?.organization?.businessHours
+      );
+
       setAppointments(appointmentsData);
       setProfessionals(professionalsData);
       setServices(servicesData);
     } catch (error) {
-      console.error("Error loading data:", error);
+      handleError(error);
     }
   };
 
@@ -66,6 +95,16 @@ export default function Home() {
   const handleScheduleSuccess = () => {
     loadData();
   };
+
+  if (error) {
+    return (
+      <ErrorPage
+        errorType={error.type}
+        error={new Error(error.message)}
+        onRetry={loadData}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex">

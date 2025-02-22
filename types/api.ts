@@ -5,8 +5,8 @@ export interface Organization {
   id: number;
   businessHours: {
     [key: string]: {
-      open: string;
-      close: string;
+      start: string;
+      end: string;
     };
   };
 }
