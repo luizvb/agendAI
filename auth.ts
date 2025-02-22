@@ -25,7 +25,6 @@ export const logtoConfig = {
   cookieSecret: process.env.LOGTO_COOKIE_SECRET,
   cookieSecure: process.env.NODE_ENV === "production",
   tenantId: process.env.LOGTO_TENANT_ID,
-  resources: [process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"],
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
