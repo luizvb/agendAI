@@ -25,7 +25,7 @@ function SwitchCompany() {
   useEffect(() => {
     const fetchToken = async () => {
       if (session) {
-        const data = await fetch("https://uwy86h.logto.app/oidc/me", {
+        const data = await fetch("https://wxyeww.logto.app/oidc/me", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
