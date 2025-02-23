@@ -6,9 +6,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       id: "logto",
       name: "Logto",
       type: "oidc",
-      issuer: "https://wxyeww.logto.app/oidc",
-      clientId: "9i1ej1jbvy7urrbai5wjw",
-      clientSecret: "QOTJ93OLp9qyPuurNfm5Dg4o8dmzh7Cz",
+      issuer: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
+      clientId: process.env.NEXT_PUBLIC_LOGTO_APP_ID,
+      clientSecret: process.env.LOGTO_APP_SECRET,
       authorization: {
         params: { scope: "openid offline_access profile email" },
       },

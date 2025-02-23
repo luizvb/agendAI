@@ -24,7 +24,7 @@ export default function ManageProfessionals() {
 
   const handleAddProfessional = (professional) => {
     professionalApi
-      .addProfessional(professional)
+      .createProfessional(professional)
       .then((data) => setProfessionals((prev) => [...prev, data]));
   };
 

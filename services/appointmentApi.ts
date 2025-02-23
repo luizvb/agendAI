@@ -15,6 +15,7 @@ export const appointmentApi = {
       serviceId: data.serviceId,
       professionalId: data.professionalId,
       startTime: data.startTime,
+      organizationId: localStorage.getItem("organization-id"),
     });
     return response.data;
   },

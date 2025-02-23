@@ -21,6 +21,11 @@ export const professionalApi = {
     return response.data;
   },
 
+  deleteProfessional: async (id: number) => {
+    const response = await api.delete(`/professionals/${id}`);
+    return response.data;
+  },
+
   fetchProfessionalsByService: async (serviceId: number) => {
     const response = await api.get(`/professionals`, {
       params: { serviceId },

@@ -175,33 +175,10 @@ export default function SchedulePage() {
                 className="mx-auto h-24 w-24 object-contain"
               />
             )}
-          </div>
-
-          <div className="mb-8 max-w-md mx-auto w-full">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Nome</Label>
-                <Input
-                  id="name"
-                  value={clientInfo.name}
-                  onChange={(e) =>
-                    handleClientInfoChange({
-                      ...clientInfo,
-                      name: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <Label htmlFor="phone">Telefone</Label>
-                <PhoneInput
-                  id="phone"
-                  value={clientInfo.phoneNumber}
-                  onChange={handlePhoneChange}
-                  defaultCountry="BR"
-                />
-              </div>
-            </div>
+            <p className="mt-4 text-gray-600">
+              Para agendar seu atendimento, selecione um serviço abaixo e
+              escolha seu melhor horário
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -280,8 +257,8 @@ export default function SchedulePage() {
                         }`}
                         onClick={() => setSelectedProfessional(professional)}
                       >
-                        <CardContent className="flex flex-col items-center p-4">
-                          <Avatar className="h-16 w-16 mb-2">
+                        <CardContent className="flex flex-col items-center p-2">
+                          <Avatar className="h-8 w-8 mb-1">
                             <AvatarImage
                               src={professional.avatarUrl}
                               alt={professional.name}
@@ -290,11 +267,11 @@ export default function SchedulePage() {
                               {professional.name.substring(0, 2).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          <p className="text-sm font-medium text-center">
+                          <p className="text-xs font-medium text-center">
                             {professional.name}
                           </p>
                           {professional.expertise && (
-                            <p className="text-xs text-gray-500 text-center mt-1">
+                            <p className="text-xs text-gray-500 text-center mt-0.5">
                               {professional.expertise}
                             </p>
                           )}

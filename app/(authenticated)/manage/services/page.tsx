@@ -23,7 +23,7 @@ export default function ManageServices() {
 
   const handleAddService = (service) => {
     serviceApi
-      .addService(service)
+      .createService(service)
       .then((data) => setServices((prev) => [...prev, data]));
   };
 

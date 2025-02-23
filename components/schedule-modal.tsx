@@ -205,21 +205,16 @@ export function ScheduleModal({
                       }`}
                       onClick={() => handleServiceSelection(service)}
                     >
-                      <CardHeader>
+                      <CardHeader className="pb-2">
                         <CardTitle className="text-base">
                           {service.name}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-500">
-                          Duração: {service.durationMinutes} minutos
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Preço: R${" "}
-                          {typeof service.price === "number"
-                            ? service.price.toFixed(2)
-                            : "0,00"}
-                        </p>
+                      <CardContent className="pt-0">
+                        <div className="flex justify-between text-sm text-gray-500">
+                          <span>{service.durationMinutes} min</span>
+                          <span>R$ {Number(service.price).toFixed(2)}</span>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -244,8 +239,8 @@ export function ScheduleModal({
                           handleProfessionalSelection(professional)
                         }
                       >
-                        <CardHeader className="flex flex-row items-center gap-4">
-                          <Avatar>
+                        <CardHeader className="flex flex-row items-center gap-2 py-2">
+                          <Avatar className="h-8 w-8">
                             <AvatarImage
                               src={professional.avatarUrl}
                               alt={professional.name}
