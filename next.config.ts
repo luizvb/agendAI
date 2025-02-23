@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_LOGTO_CALLBACK: process.env.NEXT_PUBLIC_LOGTO_CALLBACK,
     LOGTO_APP_SECRET: process.env.LOGTO_APP_SECRET,
     LOGTO_TENANT_ID: process.env.LOGTO_TENANT_ID,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -26,27 +28,6 @@ const nextConfig: NextConfig = {
       {
         source: "/logto/admin/:path*",
         destination: `https://${tenantId}.logto.app/oidc/:path*`,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      {
-        // matching all API routes
-        source: "/",
-        headers: [
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value:
-              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-          },
-        ],
       },
     ];
   },
