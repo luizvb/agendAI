@@ -1,4 +1,4 @@
-import { logtoConfig, signOut } from "@/auth";
+import { signOut } from "@/auth";
 
 export async function GET() {
   await signOut({ redirect: false });
@@ -8,7 +8,7 @@ export async function GET() {
     headers: {
       Location: `https://${tenantId}.logto.app/oidc/session/end?${new URLSearchParams(
         {
-          post_logout_redirect_uri: `${logtoConfig.baseUrl}`,
+          post_logout_redirect_uri: process.env.NEXTAUTH_URL || "",
         }
       )}`,
     },

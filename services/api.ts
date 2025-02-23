@@ -1,4 +1,4 @@
-export const BASE_URL = "/api";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Utility functions for API calls
 export const getToken = () => {
