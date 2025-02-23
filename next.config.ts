@@ -20,10 +20,8 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const tenantId = process.env.LOGTO_TENANT_ID;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(
-      "http://",
-      "https://"
-    );
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
     return [
       {
         source: "/api/:path*",
