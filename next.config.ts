@@ -20,10 +20,22 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const tenantId = process.env.LOGTO_TENANT_ID;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(
+      "http://",
+      "https://"
+    );
     return [
       {
         source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+        destination: `${apiUrl}/:path*`,
+        basePath: false,
+        headers: [
+          { key: "Upgrade-Insecure-Requests", value: "1" },
+          {
+            key: "Content-Security-Policy",
+            value: "upgrade-insecure-requests",
+          },
+        ],
       },
       {
         source: "/logto/:path*",
@@ -32,6 +44,22 @@ const nextConfig: NextConfig = {
       {
         source: "/logto/admin/:path*",
         destination: `https://${tenantId}.logto.app/oidc/:path*`,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              process.env.NODE_ENV === "development"
+                ? "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * 'unsafe-inline';"
+                : "upgrade-insecure-requests",
+          },
+        ],
       },
     ];
   },
