@@ -49,12 +49,16 @@ export function AppointmentCalendar({
     endHour: 23,
   });
 
-  // Função para obter os horários de funcionamento do dia
-  const getBusinessHours = (date: Date) => {
-    console.log(appointmentsData[0]?.organization?.businessHours);
+  const getBusinessHours = () => {
     if (!appointmentsData[0]?.organization?.businessHours) {
       return businessHours;
     }
+
+    const businessHoursData = appointmentsData[0].organization.businessHours;
+
+    // Encontra o menor horário de início e o maior horário de término da semana
+    let minStartHour = 24;
+    let maxEndHour = 0;
 
     const daysOfWeek = [
       "sunday",
@@ -65,21 +69,30 @@ export function AppointmentCalendar({
       "friday",
       "saturday",
     ];
-    console.log(date);
-    const dayKey = daysOfWeek[date.getDay()];
-    console.log(dayKey);
-    const hours = appointmentsData[0].organization.businessHours[dayKey];
 
-    console.log(hours);
+    daysOfWeek.forEach((day) => {
+      const hours = businessHoursData[day];
+      if (hours?.start && hours?.end) {
+        const [startHour] = hours.start.split(":").map(Number);
+        let [endHour] = hours.end.split(":").map(Number);
 
-    if (!hours?.start || !hours?.end) {
+        // Ajusta meia-noite para 24
+        endHour = endHour === 0 ? 24 : endHour;
+
+        minStartHour = Math.min(minStartHour, startHour);
+        maxEndHour = Math.max(maxEndHour, endHour);
+      }
+    });
+
+    // Se não encontrou nenhum horário válido, retorna o padrão
+    if (minStartHour === 24 && maxEndHour === 0) {
       return businessHours;
     }
 
-    const [startHour] = hours.start.split(":").map(Number);
-    const [endHour] = hours.end.split(":").map(Number);
-
-    return { startHour, endHour };
+    return {
+      startHour: minStartHour,
+      endHour: maxEndHour,
+    };
   };
 
   useEffect(() => {
@@ -88,16 +101,9 @@ export function AppointmentCalendar({
       return;
     }
 
-    console.log("appointmentsData:", appointmentsData);
-    console.log("organization:", appointmentsData[0]?.organization);
-    console.log(
-      "businessHours:",
-      appointmentsData[0]?.organization?.businessHours
-    );
-
-    // Configurar horários de funcionamento da empresa
+    // Atualiza os horários de funcionamento usando toda a semana
     if (appointmentsData[0]?.organization?.businessHours) {
-      const hours = getBusinessHours(currentDate);
+      const hours = getBusinessHours();
       setBusinessHours(hours);
     }
 
@@ -147,7 +153,7 @@ export function AppointmentCalendar({
 
   const handleDelete = async (deletedId: string | number) => {
     try {
-      await appointmentApi.deleteAppointment(deletedId as number);
+      await appointmentApi.delete(deletedId as number);
       toast({
         title: "Sucesso",
         description: "Agendamento cancelado com sucesso",
@@ -177,15 +183,6 @@ export function AppointmentCalendar({
   const filteredEvents = selectedProfessional
     ? events.filter((apt) => apt.professionalId === selectedProfessional.id)
     : events;
-
-  useEffect(() => {
-    console.log("Current date changed:", currentDate);
-    if (appointmentsData[0]?.organization?.businessHours) {
-      const hours = getBusinessHours(currentDate);
-      console.log("New business hours:", hours);
-      setBusinessHours(hours);
-    }
-  }, [currentDate, appointmentsData]);
 
   return (
     <div className="h-[calc(100vh-100px)] relative z-0">

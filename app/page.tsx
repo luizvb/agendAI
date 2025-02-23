@@ -1,7 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function WebPage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -27,17 +41,17 @@ export default function WebPage() {
           </Link>
         </nav>
         <div className="flex items-center gap-4">
-          <Link href="/appointments">
+          <Link href={session ? "/dashboard" : "/appointments"}>
             <Button
               variant="outline"
               className="bg-[#820AD1] hover:bg-[#6b0aad] text-white"
             >
-              Entrar
+              {session ? "Dashboard" : "Entrar"}
             </Button>
           </Link>
-          <Link href="/appointments">
+          <Link href={session ? "/dashboard" : "/appointments"}>
             <Button className="bg-[#820AD1] hover:bg-[#6b0aad] text-white">
-              Experimentar grátis por 7 dias
+              {session ? "Ir para Dashboard" : "Experimentar grátis por 7 dias"}
             </Button>
           </Link>
         </div>

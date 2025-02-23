@@ -25,19 +25,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { LoadingScreen } from "@/components/loading-screen";
 
-const chartColors = {
-  blue: "#3b82f6",
-  green: "#22c55e",
-  purple: "#8b5cf6",
-  orange: "#f97316",
-  emerald: "#059669",
-  cyan: "#06b6d4",
-  amber: "#f59e0b",
-  rose: "#e11d48",
-  indigo: "#4f46e5",
-  slate: "#475569",
-};
-
 export default function DashboardPage() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
@@ -210,55 +197,41 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-blue-50 to-white">
-          <Title className="text-blue-700">Agendamentos Hoje</Title>
-          <Text className="text-3xl font-bold mt-2 text-blue-900">
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Agendamentos Hoje</Title>
+          <Text className="text-3xl font-bold mt-2">
             {metrics.today.appointments}
           </Text>
-          <Text className="text-blue-600">
-            R$ {metrics.today.revenue.toFixed(2)}
-          </Text>
-          <Badge className="mt-2 bg-blue-100 text-blue-700 hover:bg-blue-100">
-            Hoje
-          </Badge>
+          <Text>R$ {metrics.today.revenue.toFixed(2)}</Text>
+          <Badge className="mt-2">Hoje</Badge>
         </Card>
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-purple-50 to-white">
-          <Title className="text-purple-700">Agendamentos na Semana</Title>
-          <Text className="text-3xl font-bold mt-2 text-purple-900">
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Agendamentos na Semana</Title>
+          <Text className="text-3xl font-bold mt-2">
             {metrics.week.appointments}
           </Text>
-          <Text className="text-purple-600">
-            R$ {metrics.week.revenue.toFixed(2)}
-          </Text>
-          <Badge className="mt-2 bg-purple-100 text-purple-700 hover:bg-purple-100">
-            Semana
-          </Badge>
+          <Text>R$ {metrics.week.revenue.toFixed(2)}</Text>
+          <Badge className="mt-2">Semana</Badge>
         </Card>
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-emerald-50 to-white">
-          <Title className="text-emerald-700">Agendamentos no Mês</Title>
-          <Text className="text-3xl font-bold mt-2 text-emerald-900">
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Agendamentos no Mês</Title>
+          <Text className="text-3xl font-bold mt-2">
             {metrics.month.appointments}
           </Text>
-          <Text className="text-emerald-600">
-            R$ {metrics.month.revenue.toFixed(2)}
-          </Text>
-          <Badge className="mt-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-            Mês
-          </Badge>
+          <Text>R$ {metrics.month.revenue.toFixed(2)}</Text>
+          <Badge className="mt-2">Mês</Badge>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-blue-50 to-white">
-          <Title className="text-blue-700">
-            Evolução de Agendamentos Diários
-          </Title>
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Evolução de Agendamentos Diários</Title>
           <LineChart
             className="mt-6 h-80"
             data={dailyAppointmentsData}
             index="date"
             categories={["Agendamentos"]}
-            colors={[chartColors.blue]}
+            colors={["#000000"]}
             yAxisWidth={48}
             showAnimation={true}
             showLegend={true}
@@ -267,15 +240,15 @@ export default function DashboardPage() {
           />
         </Card>
 
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-purple-50 to-white">
-          <Title className="text-purple-700">Distribuição de Serviços</Title>
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Distribuição de Serviços</Title>
           <DonutChart
             className="mt-6 h-80"
             data={metrics.serviceStats}
             category="count"
             index="serviceName"
             valueFormatter={(value) => `${value} agendamentos`}
-            colors={Object.values(chartColors)}
+            colors={["#000000", "#333333", "#666666", "#999999", "#CCCCCC"]}
             showAnimation={true}
             customTooltip={customTooltip}
             variant="pie"
@@ -285,21 +258,17 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-amber-50 to-white">
+      <Card className="shadow-sm border rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
-          <Title className="text-amber-700">Top Clientes</Title>
-          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">
-            Top 5
-          </Badge>
+          <Title>Top Clientes</Title>
+          <Badge className="">Top 5</Badge>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-semibold text-amber-900 mb-4">
-              Por Valor Gasto
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Por Valor Gasto</h3>
             <Table>
               <TableHeader>
-                <TableRow className="bg-amber-50/50">
+                <TableRow className="">
                   <TableHead>Cliente</TableHead>
                   <TableHead className="text-right">Valor Total</TableHead>
                 </TableRow>
@@ -320,12 +289,10 @@ export default function DashboardPage() {
             </Table>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-amber-900 mb-4">
-              Por Quantidade
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Por Quantidade</h3>
             <Table>
               <TableHeader>
-                <TableRow className="bg-amber-50/50">
+                <TableRow className="">
                   <TableHead>Cliente</TableHead>
                   <TableHead className="text-right">Agendamentos</TableHead>
                 </TableRow>
@@ -346,21 +313,15 @@ export default function DashboardPage() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-rose-50 to-white">
-          <Title className="text-rose-700">Profissionais por Receita</Title>
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Profissionais por Receita</Title>
           <DonutChart
             className="mt-6 h-80"
             data={metrics.topProfessionals}
             category="revenue"
             index="professionalName"
             valueFormatter={(value) => `R$ ${value.toFixed(2)}`}
-            colors={[
-              chartColors.rose,
-              chartColors.purple,
-              chartColors.indigo,
-              chartColors.cyan,
-              chartColors.emerald,
-            ]}
+            colors={["#e11d48", "#8b5cf6", "#4f46e5", "#06b6d4", "#059669"]}
             showAnimation={true}
             customTooltip={customTooltip}
             variant="pie"
@@ -369,16 +330,14 @@ export default function DashboardPage() {
           />
         </Card>
 
-        <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-emerald-50 to-white">
-          <Title className="text-emerald-700">
-            Profissionais por Atendimentos
-          </Title>
+        <Card className="shadow-sm border rounded-xl p-6">
+          <Title>Profissionais por Atendimentos</Title>
           <BarChart
             className="mt-6 h-80"
             data={metrics.topProfessionals}
             index="professionalName"
             categories={["appointmentsCount"]}
-            colors={[chartColors.emerald]}
+            colors={["#059669"]}
             valueFormatter={(value) => `${value} atendimentos`}
             yAxisWidth={48}
             customTooltip={customTooltip}
@@ -387,8 +346,8 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="shadow-sm border rounded-xl p-6 bg-gradient-to-br from-gray-50 to-white">
-        <Title className="text-gray-700">Serviços Realizados</Title>
+      <Card className="shadow-sm border rounded-xl p-6">
+        <Title>Serviços Realizados</Title>
         <div className="mt-6 overflow-x-auto">
           <Table>
             <TableHeader>

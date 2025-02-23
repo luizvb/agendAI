@@ -76,6 +76,11 @@ export default function SchedulePage() {
           `/professionals/public/${response.data.id}`
         );
         setProfessionals(professionalsResponse.data);
+
+        // Select first professional automatically
+        if (professionalsResponse.data.length > 0) {
+          setSelectedProfessional(professionalsResponse.data[0]);
+        }
       } catch (error) {
         console.error("Error fetching organization:", error);
         toast.error("Erro ao carregar dados da organização");
@@ -167,6 +172,17 @@ export default function SchedulePage() {
       >
         <div className="flex-grow flex flex-col p-4 md:p-8">
           <div className="mb-8 text-center">
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 p-6 rounded-lg shadow-sm mb-6">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="mx-auto h-28 w-auto mb-4"
+              />
+              <h2 className="text-3xl font-bold text-primary mb-2">
+                Bem-vindo!
+              </h2>
+              <p className="text-xl text-gray-600">Vamos agendar? ✨</p>
+            </div>
             <h1 className="text-2xl font-bold">{organization.name}</h1>
             {organization.logo && (
               <img
@@ -191,12 +207,6 @@ export default function SchedulePage() {
                     : ""
                 }`}
                 onClick={() => {
-                  if (!clientInfo.name || !clientInfo.phoneNumber) {
-                    toast.error(
-                      "Por favor, preencha seus dados antes de selecionar um serviço"
-                    );
-                    return;
-                  }
                   setSelectedService(service);
                   setShowScheduleModal(true);
                 }}
@@ -219,7 +229,14 @@ export default function SchedulePage() {
       </div>
 
       {showScheduleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              resetSelections();
+            }
+          }}
+        >
           <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Novo Agendamento</CardTitle>

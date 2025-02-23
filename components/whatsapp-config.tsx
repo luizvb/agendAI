@@ -28,6 +28,9 @@ export const WhatsAppConfig = () => {
     try {
       const response = await api.post("/whatsapp/init");
       setQrCode(response.data.qrCode);
+      setTimeout(() => {
+        checkStatus();
+      }, 10000);
     } catch (error) {
       console.error("Error initializing WhatsApp:", error);
     } finally {
@@ -52,10 +55,11 @@ export const WhatsAppConfig = () => {
       {isActive ? (
         <div>
           <div className="bg-green-100 p-4 rounded mb-4">
-            WhatsApp is connected and active
+            WhatsApp está conectado e ativo. O seu assistente virtual está
+            ligado no número conectado
           </div>
           <Button onClick={handleDisconnect} variant="destructive">
-            Disconnect WhatsApp
+            Desconectar WhatsApp
           </Button>
         </div>
       ) : (
@@ -64,12 +68,13 @@ export const WhatsAppConfig = () => {
             <div className="flex flex-col items-center gap-4">
               <QRCodeCanvas value={qrCode} size={256} />
               <p className="text-sm text-gray-600">
-                Scan this QR code with WhatsApp to connect
+                Escaneie esse código no seu whatsapp para conectar o seu
+                assistente virtual ao seu número.
               </p>
             </div>
           ) : (
             <Button onClick={handleInitialize} disabled={loading}>
-              {loading ? "Generating QR Code..." : "Configure WhatsApp"}
+              {loading ? "Gerando QR Code." : "Configure o WhatsApp"}
             </Button>
           )}
         </div>
