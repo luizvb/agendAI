@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
     const tenantId = process.env.LOGTO_TENANT_ID;
     return [
       {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+      },
+      {
         source: "/logto/:path*",
         destination: `https://${tenantId}.logto.app/:path*`,
       },

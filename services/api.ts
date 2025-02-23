@@ -1,6 +1,4 @@
-export const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://ec2-54-87-191-101.compute-1.amazonaws.com:3001//api";
+export const BASE_URL = "/api";
 
 // Utility functions for API calls
 export const getToken = () => {
