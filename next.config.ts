@@ -28,14 +28,6 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination: `${apiUrl}/:path*`,
-        basePath: false,
-        headers: [
-          { key: "Upgrade-Insecure-Requests", value: "1" },
-          {
-            key: "Content-Security-Policy",
-            value: "upgrade-insecure-requests",
-          },
-        ],
       },
       {
         source: "/logto/:path*",
@@ -52,6 +44,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
+          { key: "Upgrade-Insecure-Requests", value: "1" },
           {
             key: "Content-Security-Policy",
             value:
