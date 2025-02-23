@@ -91,7 +91,6 @@ export function CreateOrganizationModal({
             : undefined,
       });
 
-      router.refresh();
       onClose();
     } catch (err) {
       setError(
@@ -99,6 +98,7 @@ export function CreateOrganizationModal({
       );
     } finally {
       setIsLoading(false);
+      window.location.reload();
     }
   };
 

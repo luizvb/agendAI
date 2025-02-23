@@ -19,10 +19,6 @@ interface ClientLayoutProps {
 export function ClientLayout({ children, session }: ClientLayoutProps) {
   useEffect(() => {
     if (session?.accessToken) {
-      localStorage.setItem("session-token", session.accessToken);
-      localStorage.setItem("session-token-id", session.idToken);
-
-      // Buscar dados da organização
       userApi
         .fetchMe()
         .then((data) => {
@@ -33,9 +29,9 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
         })
         .catch((error) => console.error("Error fetching organization:", error));
     } else {
-      localStorage.removeItem("session-token");
-      localStorage.removeItem("session-token-id");
+      localStorage.removeItem("jwt-token");
       localStorage.removeItem("organization-id");
+      localStorage.removeItem("authenticated");
     }
   }, [session]);
 

@@ -15,6 +15,7 @@ export default function Providers({ children, session }: ProvidersProps) {
     console.log("session", session);
     if (session?.accessTokenId) {
       localStorage.setItem("jwt-token", session.accessTokenId);
+      localStorage.setItem("authenticated", "true");
     }
   }, [session]);
 
