@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes";
@@ -10,6 +11,13 @@ interface ProvidersProps {
 }
 
 export default function Providers({ children, session }: ProvidersProps) {
+  useEffect(() => {
+    console.log("session", session);
+    if (session?.accessTokenId) {
+      localStorage.setItem("jwt-token", session.accessTokenId);
+    }
+  }, [session]);
+
   return (
     <SessionProvider session={session}>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>

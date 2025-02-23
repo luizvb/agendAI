@@ -10,7 +10,7 @@ export const api = axios.create({
 // Adiciona um interceptor para incluir o token em cada requisição
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
-    const token = localStorage.getItem("session-token-id");
+    const token = localStorage.getItem("jwt-token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
