@@ -1,6 +1,6 @@
 "use server";
 
-import { logtoConfig, signOut } from "@/auth";
+import { signOut } from "@/auth";
 import { redirect } from "next/navigation"; // Para Next.js 13+ usando app router
 
 function getSignOutUrl(baseUrl: string): string {
@@ -13,7 +13,7 @@ function getSignOutUrl(baseUrl: string): string {
 export async function signOutAction() {
   await signOut({ redirect: false });
 
-  const url = getSignOutUrl(logtoConfig.baseUrl);
+  const url = getSignOutUrl(process.env.NEXTAUTH_URL || "");
 
   console.log("Redirecting to", url);
 
