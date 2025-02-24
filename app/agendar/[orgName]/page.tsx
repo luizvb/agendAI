@@ -39,12 +39,21 @@ interface ClientInfo {
   phoneNumber: string;
 }
 
+interface AvailableTimeSlot {
+  time: string;
+}
+
+interface AvailableDay {
+  date: string;
+  times: AvailableTimeSlot[];
+}
+
 export default function SchedulePage() {
   const params = useParams();
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<AvailableTimeSlot[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedProfessional, setSelectedProfessional] =
@@ -104,7 +113,15 @@ export default function SchedulePage() {
               },
             }
           );
-          setAvailableTimes(response.data);
+
+          // Find the matching date in the response
+          const selectedDateData = response.data.find(
+            (day: AvailableDay) =>
+              day.date.split("T")[0] ===
+              selectedDate.toISOString().split("T")[0]
+          );
+
+          setAvailableTimes(selectedDateData?.times || []);
         } catch (error) {
           console.error("Error fetching available times:", error);
           toast.error("Erro ao carregar horários disponíveis");
@@ -133,15 +150,17 @@ export default function SchedulePage() {
       return;
     }
 
+    const datetime = `${
+      selectedDate.toISOString().split("T")[0]
+    }T${selectedTime}`;
+
     try {
       await api.post("/appointments/public", {
         organizationId: organization?.id,
         client: clientInfo,
         serviceId: selectedService?.id,
         professionalId: selectedProfessional?.id,
-        startTime: `${
-          selectedDate.toISOString().split("T")[0]
-        }T${selectedTime}`,
+        startTime: new Date(datetime),
       });
 
       toast.success("Agendamento realizado com sucesso!");
@@ -304,15 +323,15 @@ export default function SchedulePage() {
                       Horários Disponíveis
                     </h3>
                     <div className="grid grid-cols-4 gap-2">
-                      {availableTimes.map((time) => (
+                      {availableTimes.map((slot) => (
                         <Button
-                          key={time}
+                          key={slot.time}
                           variant={
-                            selectedTime === time ? "default" : "outline"
+                            selectedTime === slot.time ? "default" : "outline"
                           }
-                          onClick={() => setSelectedTime(time)}
+                          onClick={() => setSelectedTime(slot.time)}
                         >
-                          {time}
+                          {slot.time}
                         </Button>
                       ))}
                     </div>

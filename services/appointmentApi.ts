@@ -10,15 +10,11 @@ interface CreateAppointmentDTO {
 
 export const appointmentApi = {
   create: async (data: CreateAppointmentDTO): Promise<Appointment> => {
-    const brasiliaTime = new Date(data.startTime).toLocaleString("en-US", {
-      timeZone: "America/Sao_Paulo",
-    });
-
     const response = await api.post<Appointment>("/appointments", {
       clientId: data.clientId,
       serviceId: data.serviceId,
       professionalId: data.professionalId,
-      startTime: new Date(brasiliaTime).toISOString(),
+      startTime: data.startTime,
       organizationId: localStorage.getItem("organization-id"),
     });
     return response.data;
