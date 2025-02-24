@@ -30,7 +30,7 @@ export const WhatsAppConfig = () => {
       setQrCode(response.data.qrCode);
       setTimeout(() => {
         checkStatus();
-      }, 10000);
+      }, 60000);
     } catch (error) {
       console.error("Error initializing WhatsApp:", error);
     } finally {
