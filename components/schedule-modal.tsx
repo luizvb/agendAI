@@ -262,69 +262,73 @@ export function ScheduleModal({
                 </div>
               )}
 
-              {selectedProfessional && (
-                <>
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">
-                      Selecione o Cliente
-                    </h3>
-                    <div className="space-y-4">
-                      {!isNewClient ? (
-                        <>
-                          <Select
-                            value={selectedClient?.id?.toString()}
-                            onValueChange={(value) => {
-                              const client = availableClients.find(
-                                (c) => c.id.toString() === value
-                              );
-                              setSelectedClient(client || null);
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione um cliente" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableClients.map((client) => (
-                                <SelectItem
-                                  key={client.id}
-                                  value={client.id.toString()}
-                                >
-                                  {client.name} - {client.phoneNumber}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            variant="outline"
-                            onClick={() => setIsNewClient(true)}
-                          >
-                            Novo Cliente
-                          </Button>
-                        </>
-                      ) : (
-                        <div className="space-y-4">
-                          <Input
-                            placeholder="Nome do cliente"
-                            value={newClientName}
-                            onChange={(e) => setNewClientName(e.target.value)}
-                          />
-                          <PhoneInput
-                            placeholder="Telefone"
-                            value={newClientPhone}
-                            onChange={(value) => setNewClientPhone(value || "")}
-                            defaultCountry="BR"
-                          />
-                          <Button
-                            variant="outline"
-                            onClick={() => setIsNewClient(false)}
-                          >
-                            Voltar para lista de clientes
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+              {selectedService && selectedProfessional && (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">
+                    Selecione o Cliente
+                  </h3>
+                  <div className="space-y-4">
+                    {!isNewClient ? (
+                      <>
+                        <Select
+                          value={selectedClient?.id?.toString()}
+                          onValueChange={(value) => {
+                            const client = availableClients.find(
+                              (c) => c.id.toString() === value
+                            );
+                            setSelectedClient(client || null);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um cliente" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableClients.map((client) => (
+                              <SelectItem
+                                key={client.id}
+                                value={client.id.toString()}
+                              >
+                                {client.name} - {client.phoneNumber}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsNewClient(true)}
+                        >
+                          Novo Cliente
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Nome do cliente"
+                          value={newClientName}
+                          onChange={(e) => setNewClientName(e.target.value)}
+                        />
+                        <PhoneInput
+                          placeholder="Telefone"
+                          value={newClientPhone}
+                          onChange={(value) => setNewClientPhone(value || "")}
+                          defaultCountry="BR"
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsNewClient(false)}
+                        >
+                          Voltar para lista de clientes
+                        </Button>
+                      </div>
+                    )}
                   </div>
+                </div>
+              )}
 
+              {selectedService &&
+                selectedProfessional &&
+                (selectedClient ||
+                  (isNewClient && newClientName && newClientPhone)) && (
                   <div>
                     <h3 className="text-lg font-medium mb-4">
                       Selecione o Horário
@@ -381,8 +385,7 @@ export function ScheduleModal({
                       </div>
                     </div>
                   </div>
-                </>
-              )}
+                )}
 
               <div className="flex justify-end space-x-2 mt-6">
                 <Button variant="outline" onClick={resetModal}>

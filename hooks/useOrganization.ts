@@ -13,9 +13,9 @@ export function useOrganization() {
     const fetchOrganization = async () => {
       try {
         const org = await organizationService.getOrganization();
-        console.log("setou?", org);
         setOrganization(org);
       } catch (err) {
+        console.log("err", err);
         setError(
           err instanceof Error ? err.message : "Failed to fetch organization"
         );

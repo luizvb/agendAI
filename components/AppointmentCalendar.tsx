@@ -110,15 +110,14 @@ export function AppointmentCalendar({
     const formattedEvents =
       appointmentsData?.length > 0
         ? appointmentsData?.map((apt: any) => {
+            const startDate = new Date(apt.startTime);
+            const endDate = new Date(apt.endTime);
+
             return {
               event_id: apt.id,
               title: `${apt?.client?.name || ""} - ${apt?.service?.name}`,
-              start: new Date(apt.startTime).toLocaleString("en-US", {
-                timeZone: "America/Sao_Paulo",
-              }),
-              end: new Date(apt.endTime).toLocaleString("en-US", {
-                timeZone: "America/Sao_Paulo",
-              }),
+              start: startDate,
+              end: endDate,
               draggable: true,
               deletable: true,
               editable: false,
@@ -129,33 +128,6 @@ export function AppointmentCalendar({
 
     setEvents(formattedEvents);
   }, [appointmentsData]);
-
-  const handleEventDrop = async (
-    draggedEvent: any,
-    updatedEvent: any,
-    droppedOn: Date
-  ) => {
-    try {
-      const formattedTime = format(droppedOn, "HH:mm");
-      await appointmentApi.updateAppointmentTime(
-        draggedEvent.event_id,
-        formattedTime
-      );
-      onAppointmentMove?.(draggedEvent.event_id, formattedTime);
-      toast({
-        title: "Sucesso",
-        description: "Horário atualizado com sucesso",
-      });
-      onAppointmentUpdate();
-    } catch (error) {
-      console.error("Error updating appointment time:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o horário",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleDelete = async (deletedId: string | number) => {
     try {
@@ -198,7 +170,7 @@ export function AppointmentCalendar({
           events={filteredEvents}
           loading={loading}
           timezone="America/Sao_Paulo"
-          onEventDrop={handleEventDrop}
+          // onEventDrop={handleEventDrop}
           onDelete={handleDelete}
           onCellClick={handleCellClick}
           draggable={true}

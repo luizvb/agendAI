@@ -6,9 +6,11 @@ import { CreateOrganizationModal } from "./CreateOrganizationModal";
 import { LoadingScreen } from "@/components/loading-screen";
 
 export function OrganizationCheck({ children }: { children: React.ReactNode }) {
-  const { organization, isLoading: orgLoading } = useOrganization();
+  const { organization, isLoading: orgLoading, error } = useOrganization();
   const [showModal, setShowModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  console.log("error", error);
 
   useEffect(() => {
     if (localStorage.getItem("authenticated") === "true") {
@@ -20,8 +22,12 @@ export function OrganizationCheck({ children }: { children: React.ReactNode }) {
     return <LoadingScreen />;
   }
 
-  if (!organization && isAuthenticated) {
+  if (!organization && isAuthenticated && !error) {
     return <CreateOrganizationModal isOpen={true} onClose={() => {}} />;
+  }
+
+  if (error) {
+    return <>{children}</>;
   }
 
   return (

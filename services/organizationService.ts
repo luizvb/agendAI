@@ -25,12 +25,8 @@ export const organizationService = {
   },
 
   async getOrganization(): Promise<Organization | null> {
-    try {
-      const response = await api.get("/auth/me");
-      return response.data.organization;
-    } catch (error) {
-      return null;
-    }
+    const response = await api.get("/auth/me");
+    return response.data.organization;
   },
 
   async updateOrganization(
