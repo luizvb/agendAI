@@ -113,8 +113,12 @@ export function AppointmentCalendar({
             return {
               event_id: apt.id,
               title: `${apt?.client?.name || ""} - ${apt?.service?.name}`,
-              start: apt.startTime,
-              end: apt.endTime,
+              start: new Date(apt.startTime).toLocaleString("en-US", {
+                timeZone: "America/Sao_Paulo",
+              }),
+              end: new Date(apt.endTime).toLocaleString("en-US", {
+                timeZone: "America/Sao_Paulo",
+              }),
               draggable: true,
               deletable: true,
               editable: false,
