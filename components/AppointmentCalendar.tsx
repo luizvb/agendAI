@@ -45,8 +45,8 @@ export function AppointmentCalendar({
   const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [businessHours, setBusinessHours] = useState<BusinessHours>({
-    startHour: 6,
-    endHour: 23,
+    startHour: 8,
+    endHour: 20,
   });
 
   const getBusinessHours = () => {
