@@ -110,9 +110,9 @@ export function AppointmentCalendar({
     const formattedEvents =
       appointmentsData?.length > 0
         ? appointmentsData?.map((apt: any) => {
-            // Converter as strings UTC para objetos Date locais
-            const startDate = new Date(apt.startTime);
-            const endDate = new Date(apt.endTime);
+            // Ajusta o fuso horário para Brasília (UTC-3)
+            const startDate = new Date(apt.startTime.replace("Z", "+03:00"));
+            const endDate = new Date(apt.endTime.replace("Z", "+03:00"));
 
             return {
               event_id: apt.id,
