@@ -109,16 +109,22 @@ export function AppointmentCalendar({
 
     const formattedEvents =
       appointmentsData?.length > 0
-        ? appointmentsData?.map((apt: any) => ({
-            event_id: apt.id,
-            title: `${apt?.client?.name || ""} - ${apt?.service?.name}`,
-            start: new Date(apt.startTime),
-            end: new Date(apt.endTime),
-            draggable: true,
-            deletable: true,
-            editable: false,
-            professionalId: apt.professional.id,
-          }))
+        ? appointmentsData?.map((apt: any) => {
+            // Converter as strings UTC para objetos Date locais
+            const startDate = new Date(apt.startTime);
+            const endDate = new Date(apt.endTime);
+
+            return {
+              event_id: apt.id,
+              title: `${apt?.client?.name || ""} - ${apt?.service?.name}`,
+              start: startDate,
+              end: endDate,
+              draggable: true,
+              deletable: true,
+              editable: false,
+              professionalId: apt.professional.id,
+            };
+          })
         : [];
 
     setEvents(formattedEvents);
@@ -191,6 +197,7 @@ export function AppointmentCalendar({
           view="day"
           events={filteredEvents}
           loading={loading}
+          timezone="America/Sao_Paulo"
           onEventDrop={handleEventDrop}
           onDelete={handleDelete}
           onCellClick={handleCellClick}
