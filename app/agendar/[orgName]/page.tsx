@@ -243,7 +243,7 @@ export default function SchedulePage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-500">
-                    Duração: {service.duration} minutos
+                    Duração: {service.durationMinutes} minutos
                   </p>
                   <p className="text-sm text-gray-500">
                     Preço: R$ {Number(service.price).toFixed(2)}
