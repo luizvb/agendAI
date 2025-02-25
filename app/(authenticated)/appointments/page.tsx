@@ -219,6 +219,7 @@ export default function Home() {
         setSelectedDate={setSelectedDate}
         availableDays={availableDays}
         onScheduleSuccess={handleScheduleSuccess}
+        selectedTime={selectedTime}
       />
 
       <PWAInstallPrompt />

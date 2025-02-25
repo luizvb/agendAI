@@ -30,6 +30,7 @@ export function ScheduleModal({
   setSelectedDate,
   availableDays,
   onScheduleSuccess,
+  selectedTime,
 }) {
   const { toast } = useToast();
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -39,6 +40,7 @@ export function ScheduleModal({
   const [newClientPhone, setNewClientPhone] = useState("");
   const [isNewClient, setIsNewClient] = useState(false);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [loadingTime, setLoadingTime] = useState<string | null>(null);
 
   // Criar um array com as datas disponíveis
   const availableDates = availableDays.map((day) => new Date(day.date));
@@ -134,6 +136,8 @@ export function ScheduleModal({
       return;
     }
 
+    setLoadingTime(time);
+
     const appointmentDate = new Date(selectedDate);
     const [hours, minutes] = time.split(":");
     appointmentDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
@@ -169,6 +173,8 @@ export function ScheduleModal({
         description: "Não foi possível realizar o agendamento.",
         variant: "destructive",
       });
+    } finally {
+      setLoadingTime(null);
     }
   };
 
@@ -198,36 +204,38 @@ export function ScheduleModal({
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium mb-4">
-                  Selecione o Serviço
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {services.map((service) => (
-                    <Card
-                      key={service.id}
-                      className={`cursor-pointer ${
-                        selectedService?.id === service.id
-                          ? "border-2 border-primary"
-                          : ""
-                      }`}
-                      onClick={() => handleServiceSelection(service)}
-                    >
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">
-                          {service.name}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>{service.durationMinutes} min</span>
-                          <span>R$ {Number(service.price).toFixed(2)}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+              {!selectedService && (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">
+                    Selecione o Serviço
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {services.map((service) => (
+                      <Card
+                        key={service.id}
+                        className={`cursor-pointer ${
+                          selectedService?.id === service.id
+                            ? "border-2 border-primary"
+                            : ""
+                        }`}
+                        onClick={() => handleServiceSelection(service)}
+                      >
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base">
+                            {service.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex justify-between text-sm text-gray-500">
+                            <span>{service.durationMinutes} min</span>
+                            <span>R$ {Number(service.price).toFixed(2)}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {selectedService && (
                 <div>
@@ -386,12 +394,22 @@ export function ScheduleModal({
                               {availableSlots.map((time) => (
                                 <Button
                                   key={time}
-                                  variant="outline"
+                                  variant={
+                                    time === selectedTime
+                                      ? "default"
+                                      : "outline"
+                                  }
                                   onClick={() =>
                                     handleScheduleAppointment(time)
                                   }
+                                  disabled={loadingTime === time}
                                 >
-                                  {time}
+                                  <div className="flex items-center justify-center gap-2">
+                                    {loadingTime === time && (
+                                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary" />
+                                    )}
+                                    <span>{time}</span>
+                                  </div>
                                 </Button>
                               ))}
                             </div>
