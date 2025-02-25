@@ -3,12 +3,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import ChatSimulation from "@/components/ChatSimulation";
 
 export default function WebPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 24,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     if (session) {
@@ -16,677 +22,823 @@ export default function WebPage() {
     }
   }, [session, router]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds === 0) {
+          if (prev.minutes === 0) {
+            if (prev.hours === 0) {
+              clearInterval(timer);
+              return prev;
+            }
+            return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+          }
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 };
+        }
+        return { ...prev, seconds: prev.seconds - 1 };
+      });
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleWhatsAppClick = () => {
+    window.open(
+      "https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre o AgendAI",
+      "_blank"
+    );
+  };
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-white border-b">
-        <div className="flex items-center">
-          <h1 className="text-2xl font-bold text-black">AgendAI</h1>
-        </div>
-        <nav className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-gray-600 hover:text-[#820AD1]">
-            Funcionalidades
-          </Link>
-          <Link href="#benefits" className="text-gray-600 hover:text-[#820AD1]">
-            Benefícios
-          </Link>
-          <Link
-            href="#testimonials"
-            className="text-gray-600 hover:text-[#820AD1]"
-          >
-            Depoimentos
-          </Link>
-          <Link href="#pricing" className="text-gray-600 hover:text-[#820AD1]">
-            Planos e Preços
-          </Link>
-        </nav>
-        <div className="flex items-center gap-4">
-          <Link href={session ? "/dashboard" : "/appointments"}>
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b">
+        <nav className="max-w-[1360px] mx-auto px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <img src="/logo.png" alt="AgendAI Logo" className="h-24" />
+            <div className="hidden md:flex items-center gap-6"></div>
+          </div>
+
+          <div className="hidden md:flex items-center gap-2 text-[#611f69] font-semibold">
+            <span>Teste 30 dias gratuitamente clicando agora!</span>
+            <span className="bg-[#611f69]/10 px-3 py-1 rounded-full">
+              {String(Math.floor(timeLeft.hours)).padStart(2, "0")}:
+              {String(Math.floor(timeLeft.minutes)).padStart(2, "0")}:
+              {String(Math.floor(timeLeft.seconds)).padStart(2, "0")}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
             <Button
-              variant="outline"
-              className="bg-[#820AD1] hover:bg-[#6b0aad] text-white"
+              variant="ghost"
+              onClick={() => router.push("/dashboard")}
+              className="hidden sm:flex"
             >
-              {session ? "Dashboard" : "Entrar"}
+              Entrar
             </Button>
-          </Link>
-          <Link href={session ? "/dashboard" : "/appointments"}>
-            <Button className="bg-[#820AD1] hover:bg-[#6b0aad] text-white">
-              {session ? "Ir para Dashboard" : "Experimentar grátis por 7 dias"}
+            <Button
+              onClick={() => router.push("/dashboard")}
+              className="bg-[#611f69] hover:bg-[#4a1751] text-white font-semibold"
+            >
+              COMEÇAR
             </Button>
-          </Link>
-        </div>
+          </div>
+        </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-6 bg-gradient-to-br from-[#820AD1] to-[#6b0aad] text-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-full mb-6">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-            <span className="font-semibold">
-              Potencializado por Inteligência Artificial
-            </span>
-          </div>
-          <div className="max-w-3xl">
+      <main className="pt-16">
+        <section className="max-w-[1360px] mx-auto px-5 py-20">
+          <div className="text-center mb-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Sua assistente virtual inteligente que nunca dorme
+              Onde o <span className="text-[#611f69]">trabalho</span> acontece
             </h1>
-            <p className="text-xl text-white/90 mb-8">
-              Não é um simples chatbot. É uma IA avançada que entende seus
-              clientes, gerencia sua agenda e otimiza seu faturamento 24 horas
-              por dia, 7 dias por semana. Ideal para consultórios, clínicas,
-              salões de beleza, barbearias e qualquer negócio que trabalhe com
-              agendamentos.
+            <p className="text-xl text-slate-700 max-w-2xl mx-auto mb-8">
+              Automatize seus agendamentos e nunca mais perca um cliente. Nossa
+              IA trabalha 24h por dia para maximizar sua agenda.
             </p>
-            <div className="flex gap-4">
-              <Link href="/appointments">
-                <Button className="bg-white text-[#820AD1] hover:bg-white/90 px-8 py-6 text-lg">
-                  Experimente grátis por 7 dias
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">
-              Mais que um sistema, uma assistente virtual inteligente
-            </h2>
-            <p className="text-xl text-gray-600">
-              Com o AgendAI, você tem uma assistente virtual que trabalha 24h
-              por dia para maximizar os resultados do seu negócio.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#f4e6ff] to-white border border-[#f4e6ff] hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1] rounded-xl flex items-center justify-center mb-6">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-4">
-                Atendimento Inteligente
-              </h3>
-              <p className="text-gray-600">
-                IA que entende naturalmente as solicitações dos clientes e
-                agenda serviços de forma autônoma
-              </p>
-            </div>
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#f4e6ff] to-white border border-[#f4e6ff] hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1] rounded-xl flex items-center justify-center mb-6">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-4">
-                Otimização Inteligente
-              </h3>
-              <p className="text-gray-600">
-                Organiza automaticamente sua agenda para maximizar o faturamento
-                e reduzir horários ociosos
-              </p>
-            </div>
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#f4e6ff] to-white border border-[#f4e6ff] hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1] rounded-xl flex items-center justify-center mb-6">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-semibold mb-4">
-                Comunicação Natural
-              </h3>
-              <p className="text-gray-600">
-                Conversa naturalmente com seus clientes, entende preferências e
-                faz recomendações personalizadas
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section id="benefits" className="py-20 px-6 bg-[#f9f9f9]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">
-              Transforme seu negócio com Inteligência Artificial
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1]/10 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-[#820AD1]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">24/7 Disponível</h3>
-              <p className="text-gray-600">
-                Nunca perca um cliente. Atendimento automático 24 horas por dia.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1]/10 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-[#820AD1]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">+40% Faturamento</h3>
-              <p className="text-gray-600">
-                Aumente seu faturamento com otimização inteligente de agenda.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1]/10 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-[#820AD1]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">95% Satisfação</h3>
-              <p className="text-gray-600">
-                Clientes mais satisfeitos com atendimento personalizado.
-              </p>
-            </div>
-            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg transition-all">
-              <div className="w-12 h-12 bg-[#820AD1]/10 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-[#820AD1]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">100% Seguro</h3>
-              <p className="text-gray-600">
-                Dados criptografados e conformidade com LGPD.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-white px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-16">
-            O que nossos clientes dizem
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-[#f4e6ff] to-white p-8 rounded-2xl">
-              <div className="mb-6">
-                <svg
-                  className="w-8 h-8 text-[#820AD1]"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-gray-600 mb-6 text-lg">
-                "O AgendAI transformou meu consultório. Agora tenho mais tempo
-                para focar no que realmente importa: atender meus pacientes."
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#820AD1] rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  MS
-                </div>
-                <div>
-                  <p className="font-semibold">Dra. Maria Silva</p>
-                  <p className="text-sm text-gray-500">Clínica Bem Estar</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-[#f4e6ff] to-white p-8 rounded-2xl">
-              <div className="mb-6">
-                <svg
-                  className="w-8 h-8 text-[#820AD1]"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-gray-600 mb-6 text-lg">
-                "Incrível como a IA entende exatamente o que meus clientes
-                precisam. Minha agenda está sempre otimizada."
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#820AD1] rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  JS
-                </div>
-                <div>
-                  <p className="font-semibold">João Santos</p>
-                  <p className="text-sm text-gray-500">Barbearia Modern</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-[#f4e6ff] to-white p-8 rounded-2xl">
-              <div className="mb-6">
-                <svg
-                  className="w-8 h-8 text-[#820AD1]"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
-              <p className="text-gray-600 mb-6 text-lg">
-                "Desde que comecei a usar o AgendAI, meu faturamento aumentou em
-                40%. A gestão do meu salão ficou muito mais eficiente!"
-              </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#820AD1] rounded-full flex items-center justify-center text-white font-bold text-xl">
-                  AO
-                </div>
-                <div>
-                  <p className="font-semibold">Ana Oliveira</p>
-                  <p className="text-sm text-gray-500">Studio Ana Beauty</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 px-6 bg-[#f9f9f9]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">
-              Planos que cabem no seu bolso
-            </h2>
-            <p className="text-xl text-gray-600">
-              Escolha o plano ideal para o seu negócio
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all">
-              <h3 className="text-2xl font-semibold mb-4">Básico</h3>
-              <div className="text-4xl font-bold mb-6 text-[#820AD1]">
-                R$ 49<span className="text-lg text-gray-500">/mês</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Até 100 agendamentos/mês</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Atendimento 24/7</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Relatórios básicos</span>
-                </li>
-              </ul>
-              <Link href="/appointments">
-                <Button className="w-full bg-[#820AD1] hover:bg-[#6b0aad] text-white">
-                  Começar agora
-                </Button>
-              </Link>
-            </div>
-            <div className="bg-[#820AD1] text-white p-8 rounded-2xl shadow-lg scale-105 relative">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black text-sm font-semibold px-4 py-1 rounded-full">
-                Mais popular
-              </div>
-              <h3 className="text-2xl font-semibold mb-4">Profissional</h3>
-              <div className="text-4xl font-bold mb-6">
-                R$ 89<span className="text-lg opacity-75">/mês</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-white flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Agendamentos ilimitados</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-white flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Atendimento prioritário</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-white flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Relatórios avançados</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-white flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Personalização avançada</span>
-                </li>
-              </ul>
-              <Link href="/appointments">
-                <Button className="w-full bg-white text-[#820AD1] hover:bg-white/90">
-                  Começar agora
-                </Button>
-              </Link>
-            </div>
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all">
-              <h3 className="text-2xl font-semibold mb-4">Enterprise</h3>
-              <div className="text-4xl font-bold mb-6 text-[#820AD1]">
-                R$ 197<span className="text-lg text-gray-500">/mês</span>
-              </div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Tudo do Profissional</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>API personalizada</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg
-                    className="w-5 h-5 text-green-500 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>Suporte dedicado</span>
-                </li>
-              </ul>
-              <Link href="/appointments">
-                <Button className="w-full bg-[#820AD1] hover:bg-[#6b0aad] text-white">
-                  Fale conosco
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-[#820AD1] to-[#6b0aad] text-white px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">
-            Pronto para transformar seu negócio?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Comece agora com 7 dias grátis. Sem compromisso.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/appointments">
-              <Button className="bg-white text-[#820AD1] hover:bg-white/90 px-8 py-6 text-lg">
-                Começar gratuitamente
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                onClick={handleWhatsAppClick}
+                className="bg-[#611f69] hover:bg-[#4a1751] text-white px-8 py-6 text-lg font-semibold"
+              >
+                COMEÇAR GRATUITAMENTE
               </Button>
-            </Link>
-            <Link href="/appointments">
               <Button
                 variant="outline"
-                className="border-white text-white hover:bg-white/10 px-8 py-6 text-lg"
+                onClick={() =>
+                  document
+                    .getElementById("pricing")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
+                className="border-[#611f69] text-[#611f69] hover:bg-[#611f69]/5 px-8 py-6 text-lg"
               >
-                Agendar demonstração
+                VER PLANOS →
               </Button>
-            </Link>
+            </div>
+            <p className="mt-4 text-sm text-slate-600">
+              AgendAI é grátis para testar. Cancele quando quiser.
+            </p>
+            <div className="mt-8 inline-flex items-center gap-2 bg-[#611f69]/10 px-4 py-2 rounded-full">
+              <div className="w-2 h-2 bg-[#611f69] rounded-full animate-pulse"></div>
+              <span className="text-[#611f69] font-semibold">
+                +500 agendamentos efetuados com nossa AI
+              </span>
+            </div>
           </div>
-        </div>
-      </section>
+          <video
+            src="/demo.mov"
+            autoPlay
+            muted
+            loop
+            className="w-full h-auto"
+            ref={(el) => {
+              if (el) {
+                el.playbackRate = 2.5;
+              }
+            }}
+          />
+        </section>
+
+        {/* IA + WhatsApp Section */}
+        <section className="py-24 bg-white">
+          <div className="max-w-[1360px] mx-auto px-5">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <div className="text-sm font-semibold text-[#611f69] mb-2">
+                  IA + WHATSAPP
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                  Gerencie agendamentos e mova seu negócio adiante mais rápido
+                </h2>
+                <p className="text-xl text-slate-600 mb-8">
+                  Nossa IA conversa naturalmente com seus clientes via WhatsApp,
+                  entendendo preferências e agendando horários automaticamente,
+                  24 horas por dia.
+                </p>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="text-4xl font-bold text-[#611f69]">47%</div>
+                  <p className="text-slate-600">
+                    de aumento na produtividade dos negócios usando AgendAI
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="absolute -right-20 -top-20 -bottom-20 -z-10">
+                  <div className="w-[500px] h-[500px] rounded-full opacity-20"></div>
+                </div>
+                <ChatSimulation chatType="scheduling" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Dashboard Section */}
+        <section className="py-24 bg-slate-50">
+          <div className="max-w-[1360px] mx-auto px-5">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="relative">
+                  <div className="absolute -left-20 -top-20 -bottom-20 -z-10">
+                    <div className="w-[500px] h-[500px] bg-[#36c5f0] rounded-full opacity-10"></div>
+                  </div>
+                  <div className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
+                    <div className="bg-slate-800 p-2 flex items-center gap-2">
+                      <div className="flex gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      </div>
+                    </div>
+                    <video
+                      src="/dashboard.mov"
+                      autoPlay
+                      muted
+                      loop
+                      className="w-full h-auto"
+                      ref={(el) => {
+                        if (el) {
+                          el.playbackRate = 2.5;
+                        }
+                      }}
+                      // className="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2">
+                <div className="text-sm font-semibold text-[#611f69] mb-2">
+                  DASHBOARD
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                  Visualize e gerencie tudo em um só lugar
+                </h2>
+                <p className="text-xl text-slate-600 mb-8">
+                  Dashboard completo com métricas em tempo real, controle
+                  financeiro e análise de desempenho para tomar as melhores
+                  decisões para seu negócio.
+                </p>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="text-4xl font-bold text-[#611f69]">89%</div>
+                  <p className="text-slate-600">
+                    dos usuários tomam decisões melhores com nosso dashboard
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Lembretes Section */}
+        <section className="py-24 bg-white">
+          <div className="max-w-[1360px] mx-auto px-5">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <div className="text-sm font-semibold text-[#611f69] mb-2">
+                  LEMBRETES
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                  Automatize comunicações e reduza faltas
+                </h2>
+                <p className="text-xl text-slate-600 mb-8">
+                  Sistema inteligente de lembretes e confirmações via WhatsApp
+                  que reduz faltas em até 95% e mantém sua agenda sempre
+                  otimizada.
+                </p>
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="text-4xl font-bold text-[#611f69]">95%</div>
+                  <p className="text-slate-600">
+                    de redução em faltas com nosso sistema de lembretes
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="absolute -right-20 -top-20 -bottom-20 -z-10">
+                  <div className="w-[500px] h-[500px] bg-[#e01e5a] rounded-full opacity-10"></div>
+                </div>
+                <ChatSimulation chatType="communication" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Results Section */}
+        <section className="py-20 bg-white px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="p-8 rounded-2xl bg-[#611f69]/10 border border-[#611f69]/20 hover:shadow-lg transition-all">
+                <div className="text-4xl font-bold text-[#611f69] mb-4">
+                  20%
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Mais Faturamento</h3>
+                <p className="text-gray-600">
+                  Nossos clientes aumentam em média 20% seu faturamento no
+                  primeiro mês
+                </p>
+              </div>
+              <div className="p-8 rounded-2xl bg-[#611f69]/10 border border-[#611f69]/20 hover:shadow-lg transition-all">
+                <div className="text-4xl font-bold text-[#611f69] mb-4">
+                  95%
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Menos Faltas</h3>
+                <p className="text-gray-600">
+                  Redução drástica no número de faltas com nosso sistema de
+                  confirmação
+                </p>
+              </div>
+              <div className="p-8 rounded-2xl bg-[#611f69]/10 border border-[#611f69]/20 hover:shadow-lg transition-all">
+                <div className="text-4xl font-bold text-[#611f69] mb-4">
+                  24/7
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Atendimento</h3>
+                <p className="text-gray-600">
+                  Sua agenda sendo preenchida mesmo quando você está dormindo
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* AI System Section */}
+        <section className="py-20 bg-white px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-4xl font-bold mb-6">
+                  Inteligência Artificial + WhatsApp = Mais Resultados
+                </h2>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#611f69]/10 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        className="w-6 h-6 text-[#611f69]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                        Agendamento Automático 24/7
+                      </h3>
+                      <p className="text-gray-700">
+                        Nossa IA conversa naturalmente com seus clientes via
+                        WhatsApp, entende suas preferências e agenda horários
+                        automaticamente, respeitando sua disponibilidade.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#611f69]/10 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        className="w-6 h-6 text-[#611f69]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Gestão Inteligente de Agenda
+                      </h3>
+                      <p className="text-gray-600">
+                        A IA otimiza sua agenda automaticamente, evitando
+                        horários ociosos e maximizando seu faturamento com base
+                        no histórico de atendimentos.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#611f69]/10 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        className="w-6 h-6 text-[#611f69]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Confirmações e Lembretes
+                      </h3>
+                      <p className="text-gray-600">
+                        Sistema automático de confirmação e lembretes via
+                        WhatsApp, reduzindo faltas em até 95%. A IA até reagenda
+                        automaticamente em caso de cancelamentos.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#611f69]/10 flex items-center justify-center flex-shrink-0">
+                      <svg
+                        className="w-6 h-6 text-[#611f69]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        Análise e Insights
+                      </h3>
+                      <p className="text-gray-600">
+                        Receba insights valiosos sobre seus clientes, horários
+                        mais rentáveis e oportunidades de crescimento, tudo pelo
+                        WhatsApp.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ChatSimulation chatType="feedback" />
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section className="py-20 bg-white px-6">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">
+              Planos que cabem no seu bolso
+            </h2>
+            <p className="text-xl text-gray-700 text-center mb-16 max-w-2xl mx-auto">
+              Escolha o plano ideal para o seu negócio e comece a aumentar seu
+              faturamento hoje mesmo
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Basic Plan */}
+              <div className="rounded-3xl border border-[#611f69]/20 p-8 bg-[#611f69]/5 hover:shadow-xl transition-all">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900">Básico</h3>
+                    <p className="text-gray-700">
+                      Para profissionais autônomos
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-[#611f69]">
+                      R$ 29,90
+                    </div>
+                    <div className="text-sm text-gray-600">por mês</div>
+                  </div>
+                </div>
+
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">
+                      Agendamento automático via WhatsApp
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">
+                      Confirmações e lembretes
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">Dashboard básico</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">1 profissional</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">Lembretes automáticos</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-[#611f69]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-gray-900">Avaliações básicas</span>
+                  </li>
+                </ul>
+
+                <Button
+                  onClick={handleWhatsAppClick}
+                  className="w-full bg-[#611f69] hover:bg-[#4a1751] text-white rounded-xl"
+                >
+                  Começar agora
+                </Button>
+              </div>
+
+              {/* Pro Plan */}
+              <div className="rounded-3xl border border-[#611f69]/20 p-8 bg-gradient-to-br from-[#611f69] to-[#4a1751] hover:shadow-xl transition-all relative overflow-hidden">
+                <div className="absolute top-6 right-6">
+                  <div className="bg-white text-[#611f69] text-xs font-bold px-3 py-1 rounded-full">
+                    MAIS POPULAR
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">Pro</h3>
+                    <p className="text-white/80">Para salões e barbearias</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-white">
+                      R$ 59,90
+                    </div>
+                    <div className="text-sm text-white/80">por mês</div>
+                  </div>
+                </div>
+
+                <ul className="space-y-4 mb-8 text-white">
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">Tudo do plano Básico</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">Até 5 profissionais</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">
+                      Controle financeiro completo
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">Relatórios avançados</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">Suporte prioritário</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">
+                      Lembretes personalizáveis
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">
+                      Sistema completo de avaliações
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span className="text-white">Relatórios de satisfação</span>
+                  </li>
+                </ul>
+
+                <Button
+                  onClick={handleWhatsAppClick}
+                  className="w-full bg-white hover:bg-white/90 text-[#611f69] rounded-xl"
+                >
+                  Começar agora
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cases Section */}
+        <section className="py-20 bg-[#f9f9f9] px-6">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-4xl font-bold text-center mb-16 text-gray-900">
+              Histórias de Sucesso
+            </h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-[#611f69] rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                    JS
+                  </div>
+                  <div>
+                    <p className="font-semibold text-xl text-gray-900">
+                      João Santos
+                    </p>
+                    <p className="text-gray-500">Barbearia Modern</p>
+                  </div>
+                </div>
+                <p className="text-gray-700 text-lg mb-4">
+                  "Aumentei meu faturamento em 45% no primeiro mês. A IA entende
+                  exatamente o que meus clientes precisam e organiza minha
+                  agenda perfeitamente."
+                </p>
+                <div className="flex items-center gap-2 text-[#611f69]">
+                  <span className="font-bold">+45%</span>
+                  <span>de faturamento</span>
+                </div>
+              </div>
+              <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 bg-[#611f69] rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                    AO
+                  </div>
+                  <div>
+                    <p className="font-semibold text-xl text-gray-900">
+                      Ana Oliveira
+                    </p>
+                    <p className="text-gray-500">Studio Ana Beauty</p>
+                  </div>
+                </div>
+                <p className="text-gray-700 text-lg mb-4">
+                  "Minha agenda está sempre cheia e organizada. O melhor é que a
+                  IA trabalha 24h por dia, então acordo com novos agendamentos
+                  todos os dias!"
+                </p>
+                <div className="flex items-center gap-2 text-[#611f69]">
+                  <span className="font-bold">+38%</span>
+                  <span>de clientes novos</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Guarantee Section */}
+        <section className="py-20 bg-white px-6">
+          <div className="max-w-7xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-[#611f69]/10 rounded-full mb-8">
+              <svg
+                className="w-12 h-12 text-[#611f69]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">
+              Garantia de Satisfação
+            </h2>
+            <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+              Se você não aumentar seu faturamento em pelo menos 30% no primeiro
+              mês, devolvemos seu dinheiro. Sem perguntas.
+            </p>
+            <Button
+              onClick={handleWhatsAppClick}
+              className="bg-[#611f69] hover:bg-[#4a1751] text-white px-8 py-6 text-lg flex items-center mx-auto rounded-xl"
+            >
+              <svg
+                className="w-6 h-6 mr-2"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
+              Começar Agora
+            </Button>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="bg-white text-gray-600 py-12 px-6 border-t">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-xl font-bold text-black mb-4">AgendAI</h3>
-            <p className="text-gray-500">
-              Transformando negócios com Inteligência Artificial
-            </p>
+      <footer className="bg-slate-50 border-t border-slate-200 py-16">
+        <div className="max-w-[1360px] mx-auto px-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {/* Add footer content */}
           </div>
-          <div>
-            <h4 className="font-semibold text-black mb-4">Produto</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="#features"
-                  className="text-gray-500 hover:text-[#820AD1]"
-                >
-                  Funcionalidades
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#pricing"
-                  className="text-gray-500 hover:text-[#820AD1]"
-                >
-                  Preços
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-black mb-4">Empresa</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  Sobre nós
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  Carreiras
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold text-black mb-4">Legal</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  Privacidade
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-gray-500 hover:text-[#820AD1]">
-                  Termos
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto mt-8 pt-8 border-t text-center text-gray-500">
-          <p>&copy; 2024 AgendAI. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>

@@ -65,14 +65,14 @@ const data = {
   ],
   projects: [
     {
-      name: "Agendamentos",
-      url: "/appointments",
-      icon: BookOpen,
-    },
-    {
       name: "Dashboard",
       url: "/dashboard",
       icon: PieChart,
+    },
+    {
+      name: "Agendamentos",
+      url: "/appointments",
+      icon: BookOpen,
     },
     {
       name: "Serviços",
@@ -104,6 +104,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const router = useRouter();
   const [orgName, setOrgName] = useState("Carregando...");
+  const [loading, setLoading] = useState<string | null>(null);
 
   const handleSwitchCompany = () => {
     router.push("/switch-company");
@@ -141,7 +142,11 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        <NavProjects
+          projects={data.projects}
+          loading={loading}
+          setLoading={setLoading}
+        />
         {/* <NavMain items={data.navMain} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
