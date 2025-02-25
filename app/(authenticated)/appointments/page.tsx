@@ -11,17 +11,39 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ErrorPage } from "@/components/error-page";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import type { Appointment } from "@/types/api";
+
+interface Professional {
+  id: number;
+  name: string;
+  avatarUrl: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+}
+
+interface TimeSlot {
+  time: string;
+}
+
+interface AvailableTime {
+  date: string;
+  times: string[];
+}
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("");
-  const [appointments, setAppointments] = useState([]);
-  const [professionals, setProfessionals] = useState([]);
-  const [selectedProfessional, setSelectedProfessional] = useState(null);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [selectedProfessional, setSelectedProfessional] =
+    useState<Professional | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState(null);
-  const [availableDays, setAvailableDays] = useState([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [availableDays, setAvailableDays] = useState<AvailableTime[]>([]);
   const [error, setError] = useState<{
     type: "CORS" | "SERVER" | "GENERIC";
     message: string;
@@ -36,15 +58,29 @@ export default function Home() {
   useEffect(() => {
     if (selectedProfessional) {
       appointmentApi
-        .fetchNext45DaysAppointments(selectedProfessional.id)
-        .then((data) => {
-          setAvailableDays(data);
+        .getAvailableTimes(selectedDate, selectedProfessional.id)
+        .then((response: unknown) => {
+          // Ensure response is an array and has the expected structure
+          if (
+            Array.isArray(response) &&
+            response.every((item) => typeof item === "object" && "time" in item)
+          ) {
+            const formattedResponse: AvailableTime = {
+              date: selectedDate.toISOString(),
+              times: response.map((slot) => slot.time as string),
+            };
+
+            setAvailableDays([formattedResponse]);
+          } else {
+            console.error("Unexpected API response format:", response);
+            setAvailableDays([{ date: selectedDate.toISOString(), times: [] }]);
+          }
         })
         .catch((error) => {
           handleError(error);
         });
     }
-  }, [selectedProfessional]);
+  }, [selectedDate, selectedProfessional]);
 
   const handleError = (error: any) => {
     if (error.message?.includes("CORS")) {
@@ -65,16 +101,6 @@ export default function Home() {
           professionalApi.fetchProfessionals(),
           serviceApi.fetchServices(),
         ]);
-
-      console.log("Appointments data:", appointmentsData);
-      console.log(
-        "First appointment organization:",
-        appointmentsData[0]?.organization
-      );
-      console.log(
-        "Business hours:",
-        appointmentsData[0]?.organization?.businessHours
-      );
 
       setAppointments(appointmentsData);
       setProfessionals(professionalsData);

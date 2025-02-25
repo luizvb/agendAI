@@ -109,22 +109,30 @@ export default function SchedulePage() {
               params: {
                 organizationId: organization.id,
                 professionalId: selectedProfessional.id,
-                date: selectedDate.toISOString().split("T")[0],
+                date: selectedDate.toISOString(),
               },
             }
           );
 
-          // Find the matching date in the response
-          const selectedDateData = response.data.find(
-            (day: AvailableDay) =>
-              day.date.split("T")[0] ===
-              selectedDate.toISOString().split("T")[0]
-          );
-
-          setAvailableTimes(selectedDateData?.times || []);
+          // Ensure response is an array and has the expected structure
+          if (
+            Array.isArray(response.data) &&
+            response.data.every(
+              (item) => typeof item === "object" && "time" in item
+            )
+          ) {
+            const formattedTimes = response.data.map((slot) => ({
+              time: slot.time as string,
+            }));
+            setAvailableTimes(formattedTimes);
+          } else {
+            console.error("Unexpected API response format:", response.data);
+            setAvailableTimes([]);
+          }
         } catch (error) {
           console.error("Error fetching available times:", error);
           toast.error("Erro ao carregar horários disponíveis");
+          setAvailableTimes([]);
         }
       }
     };

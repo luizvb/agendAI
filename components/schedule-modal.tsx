@@ -38,6 +38,7 @@ export function ScheduleModal({
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [isNewClient, setIsNewClient] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
   // Criar um array com as datas disponíveis
   const availableDates = availableDays.map((day) => new Date(day.date));
@@ -57,12 +58,18 @@ export function ScheduleModal({
       selectedProfessional &&
       availableDays
     ) {
-      const todaySlots = availableDays.find(
-        (day) =>
-          day.date.split("T")[0] === selectedDate.toISOString().split("T")[0]
-      );
+      setIsLoadingSlots(true);
 
-      setAvailableSlots(todaySlots?.times || []);
+      // Simular um pequeno delay para mostrar o loading
+      setTimeout(() => {
+        const todaySlots = availableDays.find(
+          (day) =>
+            day.date.split("T")[0] === selectedDate.toISOString().split("T")[0]
+        );
+
+        setAvailableSlots(todaySlots?.times || []);
+        setIsLoadingSlots(false);
+      }, 500);
     }
   }, [
     showScheduleModal,
@@ -95,6 +102,7 @@ export function ScheduleModal({
   };
 
   const handleDateChange = (newDate) => {
+    setIsLoadingSlots(true);
     setSelectedDate(newDate);
   };
 
@@ -367,20 +375,32 @@ export function ScheduleModal({
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
-                      <div className="grid grid-cols-4 gap-2">
-                        {availableSlots.map((slot) => (
-                          <Button
-                            key={slot.time}
-                            variant="outline"
-                            onClick={() => handleScheduleAppointment(slot.time)}
-                          >
-                            {slot.time}
-                          </Button>
-                        ))}
-                        {availableSlots.length === 0 && (
-                          <p className="col-span-4 text-center text-gray-500">
-                            Nenhum horário disponível para este dia.
-                          </p>
+                      <div className="min-h-[200px] flex items-center justify-center">
+                        {isLoadingSlots ? (
+                          <div className="flex justify-center py-8">
+                            <div className="h-[20px] w-[20px] animate-spin rounded-full border-2 border-primary border-r-transparent" />
+                          </div>
+                        ) : (
+                          <div className="w-full">
+                            <div className="grid grid-cols-4 gap-2">
+                              {availableSlots.map((time) => (
+                                <Button
+                                  key={time}
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleScheduleAppointment(time)
+                                  }
+                                >
+                                  {time}
+                                </Button>
+                              ))}
+                            </div>
+                            {availableSlots.length === 0 && (
+                              <p className="text-center text-gray-500 mt-4">
+                                Nenhum horário disponível para este dia.
+                              </p>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
