@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+    optimizePackageImports: ["@radix-ui/react-icons"],
+  },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_LOGTO_ENDPOINT: process.env.NEXT_PUBLIC_LOGTO_ENDPOINT,
@@ -34,9 +40,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === "development",
-})(nextConfig);
+export default nextConfig;

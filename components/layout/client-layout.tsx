@@ -42,7 +42,7 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
         <OrganizationCheck>
           <div className="[--header-height:calc(theme(spacing.14))]">
             <SidebarProvider className="flex flex-col">
-              <SiteHeader />
+              <SiteHeader user={session.user} />
               <div className="flex flex-1">
                 <AppSidebar user={session.user} />
                 <SidebarInset>
