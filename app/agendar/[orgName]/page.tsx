@@ -7,11 +7,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { X } from "lucide-react";
-// import { Calendar } from "../../../components/calendar";
+import { X, Calendar, CalendarCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PhoneInput } from "@/components/phone-input";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Organization {
   id: string;
@@ -23,7 +31,7 @@ interface Organization {
 interface Service {
   id: string;
   name: string;
-  duration: number;
+  durationMinutes: number;
   price: number;
 }
 
@@ -60,6 +68,8 @@ export default function SchedulePage() {
     useState<Professional | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+  const [loadingTime, setLoadingTime] = useState<string | null>(null);
   const [clientInfo, setClientInfo] = useState<ClientInfo>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("clientInfo");
@@ -79,6 +89,7 @@ export default function SchedulePage() {
         const servicesResponse = await api.get(
           `/services/public/${response.data.id}`
         );
+
         setServices(servicesResponse.data);
 
         const professionalsResponse = await api.get(
@@ -101,7 +112,13 @@ export default function SchedulePage() {
 
   useEffect(() => {
     const fetchAvailableTimes = async () => {
-      if (selectedDate && selectedProfessional && organization) {
+      if (
+        selectedDate &&
+        selectedProfessional &&
+        organization &&
+        selectedService
+      ) {
+        setIsLoadingSlots(true);
         try {
           const response = await api.get(
             "/appointments/public/available-times",
@@ -110,6 +127,7 @@ export default function SchedulePage() {
                 organizationId: organization.id,
                 professionalId: selectedProfessional.id,
                 date: selectedDate.toISOString(),
+                serviceId: selectedService?.id,
               },
             }
           );
@@ -133,12 +151,14 @@ export default function SchedulePage() {
           console.error("Error fetching available times:", error);
           toast.error("Erro ao carregar horários disponíveis");
           setAvailableTimes([]);
+        } finally {
+          setIsLoadingSlots(false);
         }
       }
     };
 
     fetchAvailableTimes();
-  }, [selectedDate, selectedProfessional, organization]);
+  }, [selectedDate, selectedProfessional, organization, selectedService]);
 
   const handleClientInfoChange = (info: ClientInfo) => {
     setClientInfo(info);
@@ -152,15 +172,20 @@ export default function SchedulePage() {
     });
   };
 
-  const handleSchedule = async () => {
+  const handleSchedule = async (time: string) => {
+    if (!selectedService || !selectedProfessional) {
+      toast.error("Selecione um serviço e profissional");
+      return;
+    }
+
     if (!clientInfo.name || !clientInfo.phoneNumber) {
       toast.error("Por favor, preencha seus dados");
       return;
     }
 
-    const datetime = `${
-      selectedDate.toISOString().split("T")[0]
-    }T${selectedTime}`;
+    setLoadingTime(time);
+
+    const datetime = `${selectedDate.toISOString().split("T")[0]}T${time}`;
 
     try {
       await api.post("/appointments/public", {
@@ -172,11 +197,12 @@ export default function SchedulePage() {
       });
 
       toast.success("Agendamento realizado com sucesso!");
-      setShowScheduleModal(false);
       resetSelections();
     } catch (error) {
       console.error("Error creating appointment:", error);
       toast.error("Erro ao realizar agendamento");
+    } finally {
+      setLoadingTime(null);
     }
   };
 
@@ -191,47 +217,53 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 pb-24">
       <div
         className={`flex-grow flex flex-col ${
           showScheduleModal ? "blur-md brightness-50" : ""
         }`}
       >
-        <div className="flex-grow flex flex-col p-4 md:p-8">
+        <div className="flex-grow flex flex-col p-4 md:p-8 max-w-7xl mx-auto w-full">
           <div className="mb-8 text-center">
-            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 p-6 rounded-lg shadow-sm mb-6">
+            <div className="bg-gradient-to-br from-primary/5 via-white to-primary/5 rounded-2xl shadow-lg p-8 mb-6 backdrop-blur-sm border border-gray-100">
               <img
-                src="/logo.png"
+                src="/logopretocut.png"
                 alt="Logo"
-                className="mx-auto h-28 w-auto mb-4"
+                className="mx-auto h-24 w-auto mb-4 drop-shadow-sm"
               />
-              <h2 className="text-3xl font-bold text-primary mb-2">
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
                 Bem-vindo!
               </h2>
-              <p className="text-xl text-gray-600">Vamos agendar? ✨</p>
+              <p className="text-xl text-gray-600 font-medium">
+                Vamos agendar? ✨
+              </p>
             </div>
-            <h1 className="text-2xl font-bold">{organization.name}</h1>
-            {organization.logo && (
-              <img
-                src={organization.logo}
-                alt={organization.name}
-                className="mx-auto h-24 w-24 object-contain"
-              />
-            )}
-            <p className="mt-4 text-gray-600">
+            <div className="flex items-center justify-center gap-4 mb-8">
+              {organization.logo && (
+                <img
+                  src={organization.logo}
+                  alt={organization.name}
+                  className="h-16 w-16 object-contain rounded-full shadow-sm"
+                />
+              )}
+              <h1 className="text-2xl font-bold text-gray-800">
+                Agendamento de serviços para: {organization.name}
+              </h1>
+            </div>
+            <p className="text-gray-600 max-w-2xl mx-auto mb-8">
               Para agendar seu atendimento, selecione um serviço abaixo e
               escolha seu melhor horário
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {services.map((service) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services?.map((service) => (
               <Card
                 key={service.id}
-                className={`cursor-pointer ${
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                   selectedService?.id === service.id
-                    ? "border-2 border-primary"
-                    : ""
+                    ? "border-2 border-primary ring-2 ring-primary/20"
+                    : "hover:border-primary/50"
                 }`}
                 onClick={() => {
                   setSelectedService(service);
@@ -239,15 +271,40 @@ export default function SchedulePage() {
                 }}
               >
                 <CardHeader>
-                  <CardTitle className="text-base">{service.name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">
+                    {service.name}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Duração: {service.durationMinutes} minutos
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Preço: R$ {Number(service.price).toFixed(2)}
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                      </svg>
+                      Duração: {service.durationMinutes} minutos
+                    </p>
+                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                      </svg>
+                      R$ {Number(service.price).toFixed(2)}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -257,145 +314,233 @@ export default function SchedulePage() {
 
       {showScheduleModal && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+            const target = e.target as HTMLDivElement;
+            if (target === e.currentTarget) {
               resetSelections();
             }
           }}
         >
-          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Novo Agendamento</CardTitle>
+          <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-background/80 backdrop-blur-sm z-10 border-b">
+              <CardTitle className="text-xl font-bold">
+                Agendar Horário
+              </CardTitle>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={resetSelections}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
               >
                 <X className="h-4 w-4" />
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-4">Selecione a Data</h3>
-                  <Calendar
-                    selectedDate={selectedDate}
-                    onDateChange={setSelectedDate}
-                  />
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Selecione o Profissional
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {professionals.map((professional) => (
-                      <Card
-                        key={professional.id}
-                        className={`cursor-pointer transition-all hover:border-primary ${
-                          selectedProfessional?.id === professional.id
-                            ? "border-2 border-primary"
-                            : ""
-                        }`}
-                        onClick={() => setSelectedProfessional(professional)}
-                      >
-                        <CardContent className="flex flex-col items-center p-2">
-                          <Avatar className="h-8 w-8 mb-1">
-                            <AvatarImage
-                              src={professional.avatarUrl}
-                              alt={professional.name}
-                            />
-                            <AvatarFallback>
-                              {professional.name.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <p className="text-xs font-medium text-center">
-                            {professional.name}
-                          </p>
-                          {professional.expertise && (
-                            <p className="text-xs text-gray-500 text-center mt-0.5">
-                              {professional.expertise}
-                            </p>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
+            <CardContent className="min-h-[400px] p-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Serviço
+                    </Label>
+                    <Select
+                      value={selectedService?.id?.toString()}
+                      onValueChange={(value) =>
+                        setSelectedService(
+                          services.find((s) => s.id.toString() === value) ||
+                            null
+                        )
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione o serviço" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {services.map((service) => (
+                          <SelectItem
+                            key={service.id}
+                            value={service.id.toString()}
+                          >
+                            {service.name} - R${" "}
+                            {Number(service.price).toFixed(2)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
 
-                {availableTimes.length > 0 && selectedProfessional && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">
-                      Horários Disponíveis
-                    </h3>
-                    <div className="grid grid-cols-4 gap-2">
-                      {availableTimes.map((slot) => (
-                        <Button
-                          key={slot.time}
-                          variant={
-                            selectedTime === slot.time ? "default" : "outline"
-                          }
-                          onClick={() => setSelectedTime(slot.time)}
-                        >
-                          {slot.time}
-                        </Button>
-                      ))}
-                    </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Profissional
+                    </Label>
+                    <Select
+                      value={selectedProfessional?.id?.toString()}
+                      onValueChange={(value) =>
+                        setSelectedProfessional(
+                          professionals.find(
+                            (p) => p.id.toString() === value
+                          ) || null
+                        )
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione o profissional" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {professionals.map((professional) => (
+                          <SelectItem
+                            key={professional.id}
+                            value={professional.id.toString()}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={professional.avatarUrl} />
+                                <AvatarFallback>
+                                  {professional.name[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              {professional.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
 
-                {selectedTime && (
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium mb-4">
-                      Informações do Cliente
-                    </h3>
-                    <div>
-                      <Label htmlFor="name">Nome</Label>
+                    <Label className="text-sm font-medium text-gray-700">
+                      Seus Dados
+                    </Label>
+                    <div className="space-y-3">
                       <Input
-                        id="name"
+                        placeholder="Seu nome"
                         value={clientInfo.name}
                         onChange={(e) =>
-                          handleClientInfoChange({
+                          setClientInfo({ ...clientInfo, name: e.target.value })
+                        }
+                        className="w-full"
+                      />
+                      <PhoneInput
+                        placeholder="Seu telefone"
+                        value={clientInfo.phoneNumber}
+                        onChange={(value) =>
+                          setClientInfo({
                             ...clientInfo,
-                            name: e.target.value,
+                            phoneNumber: value || "",
                           })
                         }
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Telefone</Label>
-                      <PhoneInput
-                        id="phone"
-                        value={clientInfo.phoneNumber}
-                        onChange={handlePhoneChange}
                         defaultCountry="BR"
+                        className="w-full"
                       />
                     </div>
                   </div>
-                )}
+                </div>
 
-                <div className="flex justify-end space-x-2 mt-6">
-                  <Button variant="outline" onClick={resetSelections}>
-                    Cancelar
-                  </Button>
-                  <Button
-                    onClick={handleSchedule}
-                    disabled={
-                      !selectedTime ||
-                      !clientInfo.name ||
-                      !clientInfo.phoneNumber
-                    }
-                  >
-                    Confirmar
-                  </Button>
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Data
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type="date"
+                        className="w-full"
+                        value={format(selectedDate, "yyyy-MM-dd")}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const newDate = parse(
+                              e.target.value,
+                              "yyyy-MM-dd",
+                              new Date()
+                            );
+                            setSelectedDate(newDate);
+                          }
+                        }}
+                        min={format(new Date(), "yyyy-MM-dd")}
+                        required
+                      />
+                      {selectedDate && (
+                        <div className="mt-2 text-sm text-gray-500 font-medium">
+                          {format(selectedDate, "EEEE, d 'de' MMMM", {
+                            locale: ptBR,
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-gray-700">
+                      Horários Disponíveis
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {isLoadingSlots ? (
+                        <div className="col-span-3 flex justify-center py-8">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-r-transparent" />
+                        </div>
+                      ) : availableTimes.length > 0 ? (
+                        availableTimes.map((slot) => (
+                          <Button
+                            key={slot.time}
+                            variant={
+                              loadingTime === slot.time ? "default" : "outline"
+                            }
+                            onClick={() => handleSchedule(slot.time)}
+                            disabled={loadingTime !== null}
+                            className={`w-full transition-all duration-200 ${
+                              loadingTime === slot.time
+                                ? "bg-primary text-white"
+                                : "hover:border-primary/50"
+                            }`}
+                          >
+                            {loadingTime === slot.time ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-r-transparent" />
+                            ) : (
+                              slot.time
+                            )}
+                          </Button>
+                        ))
+                      ) : (
+                        <p className="col-span-3 text-center text-sm text-gray-500 py-8">
+                          Nenhum horário disponível para esta data
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
       )}
+
+      {/* App-like Footer Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg px-4 py-2 z-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center justify-center h-16 hover:bg-primary/5"
+              onClick={() => setShowScheduleModal(true)}
+            >
+              <Calendar className="h-6 w-6 mb-1 text-primary" />
+              <span className="text-xs font-medium text-gray-600">Agendar</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="flex flex-col items-center justify-center h-16 hover:bg-primary/5"
+              onClick={() => toast.info("Em breve!")}
+            >
+              <CalendarCheck className="h-6 w-6 mb-1 text-primary" />
+              <span className="text-xs font-medium text-gray-600">
+                Meus Agendamentos
+              </span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

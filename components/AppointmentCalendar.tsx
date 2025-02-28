@@ -248,9 +248,9 @@ export function AppointmentCalendar({
           dialogMaxWidth="sm"
           translations={{
             navigation: {
-              month: "DIA",
+              month: "MÊS",
               week: "SEMANA",
-              day: "MÊS",
+              day: "DIA",
               today: "HOJE",
               agenda: "AGENDA",
             },
