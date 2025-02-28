@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Settings2 } from "lucide-react";
+import { BookOpen, Settings2, Users } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -26,6 +26,11 @@ const data = {
           url: "/",
         },
       ],
+    },
+    {
+      title: "Clientes",
+      url: "/clients",
+      icon: Users,
     },
     {
       title: "Serviços",

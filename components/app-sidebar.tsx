@@ -10,6 +10,7 @@ import {
   Phone,
   PieChart,
   UsersRound,
+  Users,
 } from "lucide-react";
 
 import { NavProjects } from "@/components/nav-projects";
@@ -57,6 +58,11 @@ const data = {
       name: "Time",
       url: "/manage/professionals",
       icon: UsersRound,
+    },
+    {
+      name: "Clientes",
+      url: "/manage/clients",
+      icon: Users,
     },
     {
       name: "Perfil da Empresa",

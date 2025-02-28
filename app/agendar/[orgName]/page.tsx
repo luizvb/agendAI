@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LoadingScreen } from "@/components/loading-screen";
 
 interface Organization {
   id: string;
@@ -213,7 +214,7 @@ export default function SchedulePage() {
   };
 
   if (!organization) {
-    return <div>Carregando...</div>;
+    return <LoadingScreen />;
   }
 
   return (

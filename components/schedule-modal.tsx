@@ -306,6 +306,29 @@ export function ScheduleModal({
                         <SelectValue placeholder="Selecione o cliente" />
                       </SelectTrigger>
                       <SelectContent>
+                        <div className="flex items-center px-3 pb-2">
+                          <Input
+                            placeholder="Buscar cliente..."
+                            className="h-8"
+                            onChange={(e) => {
+                              const input = e.target as HTMLInputElement;
+                              const list = input.closest('[role="listbox"]');
+                              if (list) {
+                                const items =
+                                  list.querySelectorAll('[role="option"]');
+                                items.forEach((item) => {
+                                  const text =
+                                    item.textContent?.toLowerCase() || "";
+                                  const searchText = input.value.toLowerCase();
+                                  item.classList.toggle(
+                                    "hidden",
+                                    !text.includes(searchText)
+                                  );
+                                });
+                              }
+                            }}
+                          />
+                        </div>
                         {availableClients.map((client) => (
                           <SelectItem
                             key={client.id}
