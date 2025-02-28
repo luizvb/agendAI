@@ -110,182 +110,190 @@ export default function ClientsPage() {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Clientes</CardTitle>
-            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <PlusIcon className="mr-2 h-4 w-4" />
-                  Novo Cliente
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Criar Novo Cliente</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleCreate} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Nome</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="phoneNumber">Telefone</Label>
-                    <Input
-                      id="phoneNumber"
-                      value={formData.phoneNumber}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          phoneNumber: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="notifications"
-                      checked={formData.notificationsEnabled}
-                      onCheckedChange={(checked: boolean) =>
-                        setFormData({
-                          ...formData,
-                          notificationsEnabled: checked,
-                        })
-                      }
-                    />
-                    <Label htmlFor="notifications">Permitir notificações</Label>
-                  </div>
-                  <Button type="submit" className="w-full">
-                    Criar Cliente
+    <div className="min-h-screen flex">
+      <div className="flex-grow flex flex-col p-8">
+        <Card className="w-full mb-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Clientes</CardTitle>
+              <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <PlusIcon className="mr-2 h-4 w-4" />
+                    Novo Cliente
                   </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Notificações</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell>{client.name}</TableCell>
-                    <TableCell>{client.phoneNumber}</TableCell>
-                    <TableCell>{client.email || "-"}</TableCell>
-                    <TableCell>
-                      {client.notificationsEnabled ? "Ativadas" : "Desativadas"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedClient(client);
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Criar Novo Cliente</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleCreate} className="space-y-4">
+                    <div>
+                      <Label htmlFor="name">Nome</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phoneNumber">Telefone</Label>
+                      <Input
+                        id="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={(e) =>
                           setFormData({
-                            name: client.name,
-                            phoneNumber: client.phoneNumber,
-                            email: client.email || "",
-                            notificationsEnabled: client.notificationsEnabled,
-                          });
-                          setIsEditOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+                            ...formData,
+                            phoneNumber: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="notifications"
+                        checked={formData.notificationsEnabled}
+                        onCheckedChange={(checked: boolean) =>
+                          setFormData({
+                            ...formData,
+                            notificationsEnabled: checked,
+                          })
+                        }
+                      />
+                      <Label htmlFor="notifications">
+                        Permitir notificações
+                      </Label>
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Criar Cliente
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Notificações</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {clients.map((client) => (
+                    <TableRow key={client.id}>
+                      <TableCell>{client.name}</TableCell>
+                      <TableCell>{client.phoneNumber}</TableCell>
+                      <TableCell>{client.email || "-"}</TableCell>
+                      <TableCell>
+                        {client.notificationsEnabled
+                          ? "Ativadas"
+                          : "Desativadas"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedClient(client);
+                            setFormData({
+                              name: client.name,
+                              phoneNumber: client.phoneNumber,
+                              email: client.email || "",
+                              notificationsEnabled: client.notificationsEnabled,
+                            });
+                            setIsEditOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
 
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Cliente</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEdit} className="space-y-4">
-            <div>
-              <Label htmlFor="edit-name">Nome</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-phoneNumber">Telefone</Label>
-              <Input
-                id="edit-phoneNumber"
-                value={formData.phoneNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, phoneNumber: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="edit-notifications"
-                checked={formData.notificationsEnabled}
-                onCheckedChange={(checked: boolean) =>
-                  setFormData({ ...formData, notificationsEnabled: checked })
-                }
-              />
-              <Label htmlFor="edit-notifications">Permitir notificações</Label>
-            </div>
-            <Button type="submit" className="w-full">
-              Atualizar Cliente
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Cliente</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div>
+                <Label htmlFor="edit-name">Nome</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-phoneNumber">Telefone</Label>
+                <Input
+                  id="edit-phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phoneNumber: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-email">Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="edit-notifications"
+                  checked={formData.notificationsEnabled}
+                  onCheckedChange={(checked: boolean) =>
+                    setFormData({ ...formData, notificationsEnabled: checked })
+                  }
+                />
+                <Label htmlFor="edit-notifications">
+                  Permitir notificações
+                </Label>
+              </div>
+              <Button type="submit" className="w-full">
+                Atualizar Cliente
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
