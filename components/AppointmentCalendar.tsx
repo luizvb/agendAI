@@ -3,14 +3,13 @@
 import { Scheduler } from "@aldabil/react-scheduler";
 import { useEffect, useState } from "react";
 import { appointmentApi } from "@/services";
-import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "@/components/ui/use-toast";
-import { Appointment } from "@/types/api";
+import { Appointment } from "@/types/appointment";
+import { Professional } from "@/types/professional";
 
 interface AppointmentCalendarProps {
-  selectedProfessional?: any;
-  onAppointmentMove?: (appointmentId: number, newTime: string) => void;
+  selectedProfessional?: Professional;
   onSchedule?: (date: Date) => void;
   appointments: Appointment[];
   onAppointmentUpdate: () => void;
@@ -25,18 +24,16 @@ interface Event {
   deletable: boolean;
   editable: boolean;
   professionalId: number;
+  color?: string;
 }
 
-type DayHours = number;
-
 interface BusinessHours {
-  startHour: DayHours;
-  endHour: DayHours;
+  startHour: number;
+  endHour: number;
 }
 
 export function AppointmentCalendar({
   selectedProfessional,
-  onAppointmentMove,
   onSchedule,
   appointments: appointmentsData,
   onAppointmentUpdate,
@@ -109,7 +106,7 @@ export function AppointmentCalendar({
 
     const formattedEvents =
       appointmentsData?.length > 0
-        ? appointmentsData?.map((apt: any) => {
+        ? appointmentsData?.map((apt: Appointment) => {
             const startDate = new Date(apt.startTime);
             const endDate = new Date(apt.endTime);
 
@@ -122,6 +119,7 @@ export function AppointmentCalendar({
               deletable: true,
               editable: false,
               professionalId: apt.professional.id,
+              color: apt.professional.color || "#6366f1", // Use professional's color or default to purple
             };
           })
         : [];
@@ -153,24 +151,18 @@ export function AppointmentCalendar({
     onSchedule?.(selectedDate);
   };
 
-  const handleNavigate = (date: Date) => {
-    console.log("Navigating to date:", date);
-    setCurrentDate(date);
-  };
-
   const filteredEvents = selectedProfessional
     ? events.filter((apt) => apt.professionalId === selectedProfessional.id)
     : events;
 
   return (
-    <div className="h-[calc(100vh-100px)] relative z-0">
-      <div className="absolute inset-0 overflow-auto">
+    <div className="h-full w-full">
+      <div className="h-full w-full relative isolate">
         <Scheduler
           view="day"
           events={filteredEvents}
           loading={loading}
-          timezone="America/Sao_Paulo"
-          // onEventDrop={handleEventDrop}
+          timeZone="America/Sao_Paulo"
           onDelete={handleDelete}
           onCellClick={handleCellClick}
           draggable={true}
@@ -178,33 +170,89 @@ export function AppointmentCalendar({
           editable={false}
           hourFormat="24"
           locale={ptBR}
-          onNavigate={handleNavigate}
           selectedDate={currentDate}
           month={{
             weekDays: [0, 1, 2, 3, 4, 5, 6],
             weekStartOn: 0,
-            startHour: businessHours.startHour as number,
-            endHour: businessHours.endHour as number,
+            startHour: businessHours.startHour as any,
+            endHour: businessHours.endHour as any,
           }}
           week={{
             weekDays: [0, 1, 2, 3, 4, 5, 6],
             weekStartOn: 0,
-            startHour: businessHours.startHour as number,
-            endHour: businessHours.endHour as number,
+            startHour: businessHours.startHour as any,
+            endHour: businessHours.endHour as any,
             step: 30,
           }}
           day={{
-            startHour: businessHours.startHour as number,
-            endHour: businessHours.endHour as number,
+            startHour: businessHours.startHour as any,
+            endHour: businessHours.endHour as any,
             step: 30,
           }}
+          eventRenderer={({ event, onClick }) => {
+            // Convert hex to rgb
+            const hexToRgb = (hex: string) => {
+              const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
+                hex
+              );
+              return result
+                ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16),
+                  }
+                : null;
+            };
+
+            const color = event.color || "#6366f1";
+            const rgb = hexToRgb(color);
+            const backgroundColor = rgb
+              ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.99)`
+              : color;
+
+            return (
+              <div
+                onClick={onClick}
+                style={{
+                  backgroundColor,
+                  color: "#fff",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  height: "100%",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  boxShadow: `0 1px 3px rgba(${rgb?.r}, ${rgb?.g}, ${rgb?.b}, 0.3)`,
+                }}
+              >
+                {event.title}
+              </div>
+            );
+          }}
+          fields={[
+            {
+              name: "title",
+              type: "input",
+              config: { label: "Título", required: true },
+            },
+            {
+              name: "start",
+              type: "date",
+              config: { label: "Início", required: true },
+            },
+            {
+              name: "end",
+              type: "date",
+              config: { label: "Fim", required: true },
+            },
+          ]}
+          dialogMaxWidth="sm"
           translations={{
             navigation: {
-              month: "Mês",
-              week: "Semana",
-              day: "Dia",
-              today: "Hoje",
-              agenda: "Agenda",
+              month: "DIA",
+              week: "SEMANA",
+              day: "MÊS",
+              today: "HOJE",
+              agenda: "AGENDA",
             },
             form: {
               addTitle: "Adicionar Agendamento",

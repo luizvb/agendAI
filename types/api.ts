@@ -18,7 +18,7 @@ export interface Service {
   isActive: boolean;
   id: number;
   description: string;
-  customFields: any | null;
+  customFields: Record<string, unknown> | null;
 }
 
 export interface Professional {
@@ -28,7 +28,20 @@ export interface Professional {
   id: number;
   email: string | null;
   phone: string | null;
-  preferences: any | null;
+  preferences: {
+    workingHours?: {
+      [day: string]: {
+        start: string;
+        end: string;
+      };
+    };
+    services?: number[];
+    notifications?: {
+      email?: boolean;
+      sms?: boolean;
+      whatsapp?: boolean;
+    };
+  } | null;
 }
 
 export interface User {
@@ -39,7 +52,15 @@ export interface User {
   isActive: boolean;
   id: number;
   username: string;
-  preferences: any | null;
+  preferences: {
+    theme?: "light" | "dark" | "system";
+    language?: string;
+    notifications?: {
+      email?: boolean;
+      sms?: boolean;
+      whatsapp?: boolean;
+    };
+  } | null;
 }
 
 export interface Appointment {
@@ -58,7 +79,13 @@ export interface Appointment {
   rating: number | null;
   notes: string | null;
   cancellationReason: string | null;
-  metadata: any | null;
+  metadata: {
+    source?: string;
+    paymentMethod?: string;
+    paymentStatus?: string;
+    additionalNotes?: string;
+    customFields?: Record<string, unknown>;
+  } | null;
 }
 
 export type AppointmentResponse = Appointment[];

@@ -1,0 +1,17 @@
+# Allow all crawlers
+User-agent: *
+
+# Prevent crawling of authenticated areas
+Disallow: /dashboard
+Disallow: /appointments
+Disallow: /clients
+Disallow: /manage
+Disallow: /whatsapp
+Disallow: /api/
+
+# Allow crawling of public areas
+Allow: /
+Allow: /agendar
+
+# Sitemap location
+Sitemap: https://gendaia.com/sitemap.xml 

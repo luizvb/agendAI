@@ -56,7 +56,6 @@ export type DashboardMetrics = {
   }>;
   topProfessionals: TopProfessional[];
   conversationMetrics: ConversationMetrics;
-  [key: string]: any; // Add index signature to allow dynamic access
 };
 
 export async function getDashboardMetrics(

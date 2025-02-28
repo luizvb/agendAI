@@ -13,8 +13,28 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgendAI",
-  description: "Schedule Barber",
+  title: "Gendaia | Transforme seu Agendamento com IA",
+  description:
+    "Revolucione a forma de agendar serviços com a Gendaia. Nossa plataforma com IA torna o agendamento mais inteligente, eficiente e personalizado para seu negócio.",
+  openGraph: {
+    title: "Gendaia | Transforme seu Agendamento com IA",
+    description:
+      "Revolucione a forma de agendar serviços com a Gendaia. Nossa plataforma com IA torna o agendamento mais inteligente e eficiente.",
+    images: [
+      {
+        url: "/marketing-og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Gendaia - Agendamento Inteligente",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gendaia | Transforme seu Agendamento com IA",
+    description: "Revolucione a forma de agendar serviços com a Gendaia.",
+    images: ["/marketing-og.jpg"],
+  },
 };
 
 export default function MarketingLayout({

@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/toaster";
 import { appointmentApi, professionalApi, serviceApi } from "@/services";
 import { ScheduleModal } from "@/components/schedule-modal";
@@ -56,9 +55,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (selectedProfessional) {
+    if (selectedProfessional && selectedService) {
       appointmentApi
-        .getAvailableTimes(selectedDate, selectedProfessional.id)
+        .getAvailableTimes(
+          selectedDate,
+          selectedProfessional.id,
+          selectedService?.id
+        )
         .then((response: unknown) => {
           // Ensure response is an array and has the expected structure
           if (
@@ -80,7 +83,7 @@ export default function Home() {
           handleError(error);
         });
     }
-  }, [selectedDate, selectedProfessional]);
+  }, [selectedDate, selectedProfessional, selectedService]);
 
   const handleError = (error: any) => {
     if (error.message?.includes("CORS")) {
@@ -166,14 +169,14 @@ export default function Home() {
           showScheduleModal ? "blur-md brightness-50" : ""
         }`}
       >
-        <div className="flex-grow flex flex-col p-4 md:p-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        <div className="flex-grow flex flex-col p-4 md:p-8 h-screen overflow-auto">
+          <div className="flex justify-between items-center mb-4 top-0 bg-background z-10">
+            <div className="flex x items-center gap-2 overflow-x-auto pb-2">
               {professionals.length > 0 &&
                 professionals?.map((professional) => (
                   <Avatar
                     key={professional.id}
-                    className={`cursor-pointer transition-all hover:ring-2 hover:ring-primary ${
+                    className={` mt-2 ml-2 mr-2  cursor-pointer transition-all hover:ring-2 hover:ring-primary ${
                       selectedProfessional?.id === professional.id
                         ? "ring-2 ring-primary"
                         : ""
@@ -185,7 +188,7 @@ export default function Home() {
                       alt={professional.name}
                     />
                     <AvatarFallback>
-                      {professional.name.substring(0, 2).toUpperCase()}
+                      {professional.name.substring(0, 3).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                 ))}

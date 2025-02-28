@@ -14,7 +14,7 @@ body {
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
+    --primary: 262 83% 58%;
     --primary-foreground: 210 20% 98%;
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
@@ -26,7 +26,7 @@ body {
     --destructive-foreground: 210 20% 98%;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
+    --ring: 262 83% 58%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -49,8 +49,8 @@ body {
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 210 20% 98%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
     --muted: 215 27.9% 16.9%;
@@ -61,7 +61,7 @@ body {
     --destructive-foreground: 210 20% 98%;
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
+    --ring: 262 83% 58%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -91,6 +91,126 @@ body {
   }
 }
 
+/* Estilos personalizados para o calendário */
+.css-1q4ho6v-MuiButtonBase-root-MuiButton-root,
+.css-sghohy-MuiButton-root,
+.css-1e6y48t-MuiButtonBase-root-MuiButton-root,
+.MuiButton-text,
+.MuiButtonBase-root,
+.MuiToggleButton-root,
+[class*="MuiButton-root"],
+[class*="MuiToggleButton-root"] {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  text-transform: none !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.css-1q4ho6v-MuiButtonBase-root-MuiButton-root:hover,
+.css-sghohy-MuiButton-root:hover,
+.css-1e6y48t-MuiButtonBase-root-MuiButton-root:hover,
+.MuiButton-text:hover,
+.MuiButtonBase-root:hover,
+.MuiToggleButton-root:hover,
+[class*="MuiButton-root"]:hover,
+[class*="MuiToggleButton-root"]:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.css-1e6y48t-MuiButtonBase-root-MuiButton-root.Mui-selected,
+.MuiToggleButton-root.Mui-selected,
+[class*="MuiToggleButton-root"].Mui-selected {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Estilo específico para os botões de navegação */
+.rs__toolbar_button {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-radius: 4px !important;
+  text-transform: none !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.rs__toolbar_button:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+.rs__toolbar_button.rs__toolbar_button_active {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Estilos para o calendário em modo escuro */
+.dark .rs__toolbar_button,
+.dark [class*="MuiButton-root"],
+.dark [class*="MuiToggleButton-root"] {
+  background-color: hsl(var(--background)) !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .rs__toolbar_button:hover,
+.dark [class*="MuiButton-root"]:hover,
+.dark [class*="MuiToggleButton-root"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.dark .rs__toolbar_button.rs__toolbar_button_active,
+.dark [class*="MuiButton-root"].Mui-selected,
+.dark [class*="MuiToggleButton-root"].Mui-selected {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+/* Estilos adicionais para o calendário em modo escuro */
+.dark .rs__cell {
+  background-color: hsl(var(--background)) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .rs__time {
+  color: white !important;
+}
+
+.dark .rs__header {
+  background-color: hsl(var(--background)) !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .rs__toolbar {
+  background-color: hsl(var(--background)) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .rs__event {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .rs__cell--today {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .rs__cell:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .MuiPaper-root {
+  background-color: hsl(var(--background)) !important;
+  color: white !important;
+}
+
+.dark .rs__cell *,
+.dark .rs__header *,
+.dark .rs__toolbar * {
+  color: white !important;
+}
+
 .dragging-over {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -104,8 +224,6 @@ body {
   }
 }
 
-
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -113,4 +231,9 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Remover sticky do cabeçalho */
+.css-1d1h06e {
+  position: relative !important;
 }

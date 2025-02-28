@@ -3,7 +3,12 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { appointmentApi, clientApi } from "@/services";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -16,6 +21,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Client } from "@/types/client";
+import { Service } from "@/types/service";
+import { Professional } from "@/types/professional";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import "react-day-picker/dist/style.css";
+
+interface ScheduleModalProps {
+  showScheduleModal: boolean;
+  setShowScheduleModal: (show: boolean) => void;
+  selectedService: Service | null;
+  setSelectedService: (service: Service | null) => void;
+  services: Service[];
+  professionals: Professional[];
+  selectedProfessional: Professional | null;
+  setSelectedProfessional: (professional: Professional | null) => void;
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+  availableDays: { date: string; times: string[] }[];
+  onScheduleSuccess: () => void;
+  initialSelectedTime?: string;
+}
 
 export function ScheduleModal({
   showScheduleModal,
@@ -30,10 +62,10 @@ export function ScheduleModal({
   setSelectedDate,
   availableDays,
   onScheduleSuccess,
-  selectedTime,
-}) {
+  initialSelectedTime,
+}: ScheduleModalProps) {
   const { toast } = useToast();
-  const [availableSlots, setAvailableSlots] = useState([]);
+  const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [availableClients, setAvailableClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [newClientName, setNewClientName] = useState("");
@@ -42,9 +74,23 @@ export function ScheduleModal({
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
   const [loadingTime, setLoadingTime] = useState<string | null>(null);
 
-  // Criar um array com as datas disponíveis
-  const availableDates = availableDays.map((day) => new Date(day.date));
+  // Função para atualizar os horários disponíveis
+  const updateAvailableSlots = () => {
+    setIsLoadingSlots(true);
+    setAvailableSlots([]);
 
+    const todaySlots = availableDays.find(
+      (day) =>
+        day.date.split("T")[0] === selectedDate.toISOString().split("T")[0]
+    );
+
+    setTimeout(() => {
+      setAvailableSlots(todaySlots?.times || []);
+      setIsLoadingSlots(false);
+    }, 300);
+  };
+
+  // Effect para carregar clientes quando o modal abrir
   useEffect(() => {
     if (showScheduleModal) {
       clientApi.list().then((clients) => {
@@ -53,33 +99,30 @@ export function ScheduleModal({
     }
   }, [showScheduleModal]);
 
+  // Effect para atualizar horários quando qualquer dependência mudar
   useEffect(() => {
     if (
       showScheduleModal &&
       selectedService &&
       selectedProfessional &&
-      availableDays
+      selectedDate
     ) {
-      setIsLoadingSlots(true);
-
-      // Simular um pequeno delay para mostrar o loading
-      setTimeout(() => {
-        const todaySlots = availableDays.find(
-          (day) =>
-            day.date.split("T")[0] === selectedDate.toISOString().split("T")[0]
-        );
-
-        setAvailableSlots(todaySlots?.times || []);
-        setIsLoadingSlots(false);
-      }, 500);
+      updateAvailableSlots();
     }
   }, [
     showScheduleModal,
-    selectedService,
-    selectedProfessional,
-    availableDays,
+    selectedService?.id,
+    selectedProfessional?.id,
     selectedDate,
+    availableDays,
   ]);
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      const newDate = parse(e.target.value, "yyyy-MM-dd", new Date());
+      setSelectedDate(newDate);
+    }
+  };
 
   const resetModal = () => {
     setShowScheduleModal(false);
@@ -89,23 +132,6 @@ export function ScheduleModal({
     setNewClientName("");
     setNewClientPhone("");
     setIsNewClient(false);
-  };
-
-  const handleServiceSelection = (service) => {
-    setSelectedService(service);
-    const professionalToUse = selectedProfessional || professionals[0];
-    if (professionalToUse) {
-      setSelectedProfessional(professionalToUse);
-    }
-  };
-
-  const handleProfessionalSelection = (professional) => {
-    setSelectedProfessional(professional);
-  };
-
-  const handleDateChange = (newDate) => {
-    setIsLoadingSlots(true);
-    setSelectedDate(newDate);
   };
 
   const handleScheduleAppointment = async (time: string) => {
@@ -120,7 +146,7 @@ export function ScheduleModal({
 
     if (!selectedClient && !isNewClient) {
       toast({
-        title: "Erro",
+        title: "Atenção",
         description: "Selecione um cliente ou cadastre um novo",
         variant: "destructive",
       });
@@ -129,7 +155,7 @@ export function ScheduleModal({
 
     if (isNewClient && (!newClientName || !newClientPhone)) {
       toast({
-        title: "Erro",
+        title: "Atenção",
         description: "Preencha o nome e telefone do novo cliente",
         variant: "destructive",
       });
@@ -150,6 +176,10 @@ export function ScheduleModal({
           name: newClientName,
           phoneNumber: newClientPhone,
         });
+      }
+
+      if (!client) {
+        throw new Error("Cliente não selecionado");
       }
 
       await appointmentApi.create({
@@ -178,262 +208,208 @@ export function ScheduleModal({
     }
   };
 
-  const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      resetModal();
-    }
-  };
-
-  return (
-    showScheduleModal && (
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-        onClick={handleClickOutside}
-      >
-        <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Novo Agendamento</CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={resetModal}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {!selectedService && (
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Selecione o Serviço
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  return showScheduleModal ? (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && resetModal()}
+    >
+      <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-background z-10 border-b">
+          <CardTitle>Agendar Horário</CardTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={resetModal}
+            className="h-8 w-8 p-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent className="min-h-[400px]">
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Left Column */}
+            <div className="space-y-4">
+              <div className="min-h-[76px]">
+                <label className="text-sm font-medium mb-1 block">
+                  Serviço
+                </label>
+                <Select
+                  value={selectedService?.id?.toString()}
+                  onValueChange={(value) =>
+                    setSelectedService(
+                      services.find((s) => s.id.toString() === value) || null
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {services.map((service) => (
-                      <Card
+                      <SelectItem
                         key={service.id}
-                        className={`cursor-pointer ${
-                          selectedService?.id === service.id
-                            ? "border-2 border-primary"
-                            : ""
-                        }`}
-                        onClick={() => handleServiceSelection(service)}
+                        value={service.id.toString()}
                       >
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base">
-                            {service.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <div className="flex justify-between text-sm text-gray-500">
-                            <span>{service.durationMinutes} min</span>
-                            <span>R$ {Number(service.price).toFixed(2)}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                        {service.name} - R$ {Number(service.price).toFixed(2)}
+                      </SelectItem>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {selectedService && (
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Selecione o Profissional
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="min-h-[76px]">
+                <label className="text-sm font-medium mb-1 block">
+                  Profissional
+                </label>
+                <Select
+                  value={selectedProfessional?.id?.toString()}
+                  onValueChange={(value) =>
+                    setSelectedProfessional(
+                      professionals.find((p) => p.id.toString() === value) ||
+                        null
+                    )
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o profissional" />
+                  </SelectTrigger>
+                  <SelectContent>
                     {professionals.map((professional) => (
-                      <Card
+                      <SelectItem
                         key={professional.id}
-                        className={`cursor-pointer ${
-                          selectedProfessional?.id === professional.id
-                            ? "border-2 border-primary"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          handleProfessionalSelection(professional)
-                        }
+                        value={professional.id.toString()}
                       >
-                        <CardHeader className="flex flex-row items-center gap-2 py-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage
-                              src={professional.avatarUrl}
-                              alt={professional.name}
-                            />
-                            <AvatarFallback>
-                              {professional.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </AvatarFallback>
-                          </Avatar>
-                          <CardTitle className="text-base">
-                            {professional.name}
-                          </CardTitle>
-                        </CardHeader>
-                      </Card>
+                        {professional.name}
+                      </SelectItem>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {selectedService && selectedProfessional && (
-                <div>
-                  <h3 className="text-lg font-medium mb-4">
-                    Selecione o Cliente
-                  </h3>
-                  <div className="space-y-4">
-                    {!isNewClient ? (
-                      <>
-                        <Select
-                          value={selectedClient?.id?.toString()}
-                          onValueChange={(value) => {
-                            const client = availableClients.find(
-                              (c) => c.id.toString() === value
-                            );
-                            setSelectedClient(client || null);
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione um cliente" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableClients.map((client) => (
-                              <SelectItem
-                                key={client.id}
-                                value={client.id.toString()}
-                              >
-                                {client.name} - {client.phoneNumber}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsNewClient(true)}
-                        >
-                          Novo Cliente
-                        </Button>
-                      </>
-                    ) : (
-                      <div className="space-y-4">
-                        <Input
-                          placeholder="Nome do cliente"
-                          value={newClientName}
-                          onChange={(e) => setNewClientName(e.target.value)}
-                        />
-                        <PhoneInput
-                          placeholder="Telefone"
-                          value={newClientPhone}
-                          onChange={(value) => setNewClientPhone(value || "")}
-                          defaultCountry="BR"
-                        />
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsNewClient(false)}
-                        >
-                          Voltar para lista de clientes
-                        </Button>
-                      </div>
-                    )}
+              <div className="min-h-[120px]">
+                <label className="text-sm font-medium mb-1 block">
+                  Cliente
+                </label>
+                {!isNewClient ? (
+                  <div className="space-y-2">
+                    <Select
+                      value={selectedClient?.id?.toString()}
+                      onValueChange={(value) =>
+                        setSelectedClient(
+                          availableClients.find(
+                            (c) => c.id.toString() === value
+                          ) || null
+                        )
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o cliente" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableClients.map((client) => (
+                          <SelectItem
+                            key={client.id}
+                            value={client.id.toString()}
+                          >
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setIsNewClient(true)}
+                    >
+                      Novo Cliente
+                    </Button>
                   </div>
-                </div>
-              )}
-
-              {selectedService &&
-                selectedProfessional &&
-                (selectedClient ||
-                  (isNewClient && newClientName && newClientPhone)) && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">
-                      Selecione o Horário
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            handleDateChange(
-                              new Date(
-                                selectedDate.setDate(selectedDate.getDate() - 1)
-                              )
-                            )
-                          }
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="text-lg">
-                          {selectedDate.toLocaleDateString("pt-BR", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                          })}
-                        </span>
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            handleDateChange(
-                              new Date(
-                                selectedDate.setDate(selectedDate.getDate() + 1)
-                              )
-                            )
-                          }
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="min-h-[200px] flex items-center justify-center">
-                        {isLoadingSlots ? (
-                          <div className="flex justify-center py-8">
-                            <div className="h-[20px] w-[20px] animate-spin rounded-full border-2 border-primary border-r-transparent" />
-                          </div>
-                        ) : (
-                          <div className="w-full">
-                            <div className="grid grid-cols-4 gap-2">
-                              {availableSlots.map((time) => (
-                                <Button
-                                  key={time}
-                                  variant={
-                                    time === selectedTime
-                                      ? "default"
-                                      : "outline"
-                                  }
-                                  onClick={() =>
-                                    handleScheduleAppointment(time)
-                                  }
-                                  disabled={loadingTime === time}
-                                >
-                                  <div className="flex items-center justify-center gap-2">
-                                    {loadingTime === time && (
-                                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary" />
-                                    )}
-                                    <span>{time}</span>
-                                  </div>
-                                </Button>
-                              ))}
-                            </div>
-                            {availableSlots.length === 0 && (
-                              <p className="text-center text-gray-500 mt-4">
-                                Nenhum horário disponível para este dia.
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="Nome do cliente"
+                      value={newClientName}
+                      onChange={(e) => setNewClientName(e.target.value)}
+                    />
+                    <PhoneInput
+                      placeholder="Telefone"
+                      value={newClientPhone}
+                      onChange={(value) => setNewClientPhone(value || "")}
+                      defaultCountry="BR"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setIsNewClient(false)}
+                    >
+                      Voltar para lista
+                    </Button>
                   </div>
                 )}
-
-              <div className="flex justify-end space-x-2 mt-6">
-                <Button variant="outline" onClick={resetModal}>
-                  Cancelar
-                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  );
+
+            {/* Right Column */}
+            <div className="space-y-4">
+              <div className="min-h-[76px]">
+                <label className="text-sm font-medium mb-1 block">Data</label>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    className="w-full"
+                    value={format(selectedDate, "yyyy-MM-dd")}
+                    onChange={handleDateChange}
+                    min={format(new Date(), "yyyy-MM-dd")}
+                    required
+                  />
+                  {selectedDate && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      {format(selectedDate, "EEEE, d 'de' MMMM", {
+                        locale: ptBR,
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="min-h-[200px]">
+                <label className="text-sm font-medium mb-1 block">
+                  Horários Disponíveis
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {isLoadingSlots ? (
+                    <div className="col-span-3 flex justify-center py-4">
+                      <div className="h-[20px] w-[20px] animate-spin rounded-full border-2 border-primary border-r-transparent" />
+                    </div>
+                  ) : availableSlots.length > 0 ? (
+                    availableSlots.map((time) => (
+                      <Button
+                        key={time}
+                        variant={loadingTime === time ? "default" : "outline"}
+                        onClick={() => handleScheduleAppointment(time)}
+                        disabled={loadingTime !== null}
+                        className="w-full"
+                      >
+                        {loadingTime === time ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-r-transparent" />
+                        ) : (
+                          time
+                        )}
+                      </Button>
+                    ))
+                  ) : (
+                    <p className="col-span-3 text-center text-sm text-gray-500 py-4">
+                      Nenhum horário disponível
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  ) : null;
 }

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgendAI",
-  description: "Schedule Barber",
+  title: "Gendaia",
+  description: "AI que agenda!",
 };
 
 export default function HomeLayout({

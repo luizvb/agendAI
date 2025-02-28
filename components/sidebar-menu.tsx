@@ -55,7 +55,7 @@ export function AppSidebar({
       <SidebarProvider>
         <Sidebar collapsible="icon" {...props}>
           <SidebarHeader>
-            <h1 className="">PG AgendAI</h1>
+            <h1 className="">Gendaia</h1>
           </SidebarHeader>
           <SidebarContent>
             <NavMain items={data.navMain} />

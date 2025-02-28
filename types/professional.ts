@@ -1,9 +1,8 @@
 export interface Professional {
-  id: string;
+  id: number;
   name: string;
-  bio?: string;
-  avatarUrl?: string;
-  organizationId: string;
-  createdAt: string;
-  updatedAt: string;
+  email?: string;
+  phoneNumber?: string;
+  avatar?: string;
+  color?: string;
 }

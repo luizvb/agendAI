@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Client } from "@/types/client";
-import { clientService } from "@/services/clientService";
+import { clientApi } from "@/services/clientService";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -24,7 +24,7 @@ export default function ClientsPage() {
 
   const loadClients = async () => {
     try {
-      const data = await clientService.list();
+      const data = await clientApi.list();
       setClients(data);
     } catch (error) {
       console.error("Error loading clients:", error);

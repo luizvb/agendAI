@@ -162,8 +162,8 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="p-4 space-y-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
-      <div className="flex justify-between items-center bg-white rounded-xl p-4 shadow-sm border">
+    <div className="p-4 space-y-6 bg-background min-h-screen">
+      <div className="flex justify-between items-center bg-card rounded-xl p-4 shadow-sm border">
         <div className="text-lg font-semibold">Dashboard</div>
         <div className="flex items-center gap-4">
           <Select

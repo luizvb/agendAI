@@ -9,8 +9,6 @@ import {
   LifeBuoy,
   Phone,
   PieChart,
-  Send,
-  Settings2,
   UsersRound,
 } from "lucide-react";
 
@@ -18,7 +16,6 @@ import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { useRouter } from "next/navigation";
-import { useOrganization } from "@/hooks/useOrganization";
 import { useEffect, useState } from "react";
 
 import {
@@ -30,32 +27,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavMain } from "./nav-main";
 import { User } from "next-auth";
 
 const data = {
-  navMain: [
-    {
-      title: "Configurações",
-      url: "#",
-      icon: Settings2,
-      isActive: true,
-      items: [
-        {
-          title: "Serviços",
-          url: "/manage/services",
-        },
-        {
-          title: "Time",
-          url: "/manage/professionals",
-        },
-        {
-          title: "Perfil da Empresa",
-          url: "/manage/company-profile",
-        },
-      ],
-    },
-  ],
   navSecondary: [
     {
       title: "Suporte",
@@ -102,13 +76,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  const router = useRouter();
   const [orgName, setOrgName] = useState("Carregando...");
   const [loading, setLoading] = useState<string | null>(null);
-
-  const handleSwitchCompany = () => {
-    router.push("/switch-company");
-  };
 
   useEffect(() => {
     const name = localStorage.getItem("organization-name");
@@ -119,7 +88,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
 
   return (
     <Sidebar
-      className="top-[--header-height] !h-[calc(100svh-var(--header-height))]"
+      className="top-[--header-height] !h-[calc(100svh-var(--header-height))] "
       {...props}
     >
       <SidebarHeader>
@@ -127,13 +96,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#6c359b] text-sidebar-primary-foreground">
                   <Command className="size-4" />
                 </div>
-                <div
-                  onClick={() => {}}
-                  className="grid flex-1 text-left text-sm leading-tight"
-                >
+                <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{orgName}</span>
                 </div>
               </a>
@@ -147,12 +113,8 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           loading={loading}
           setLoading={setLoading}
         />
-        {/* <NavMain items={data.navMain} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
     </Sidebar>
   );
 }

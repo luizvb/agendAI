@@ -52,12 +52,14 @@ export const appointmentApi = {
 
   getAvailableTimes: async (
     date: Date,
-    professionalId: number
+    professionalId: number,
+    serviceId?: number
   ): Promise<string[]> => {
     const response = await api.get<string[]>(`/appointments/available-times`, {
       params: {
         date,
         professionalId,
+        serviceId,
       },
     });
     return response.data;

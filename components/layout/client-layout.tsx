@@ -22,9 +22,10 @@ export function ClientLayout({ children, session }: ClientLayoutProps) {
       userApi
         .fetchMe()
         .then((data) => {
-          if (data.organizationId) {
-            localStorage.setItem("organization-id", data.organizationId);
-            localStorage.setItem("organization-name", data.organization.name);
+          console.log("data", data);
+          if (data?.organizationId) {
+            localStorage.setItem("organization-id", data?.organizationId);
+            localStorage.setItem("organization-name", data?.organization?.name);
           }
         })
         .catch((error) => console.error("Error fetching organization:", error));

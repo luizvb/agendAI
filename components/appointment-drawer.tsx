@@ -1,20 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckIcon, Clock } from "lucide-react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PhoneInput } from "./phone-input";
 import { appointmentApi } from "@/services/appointmentApi";
-import { format } from "date-fns";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -160,8 +150,8 @@ export function AppointmentDrawer({
     return date.toLocaleDateString("pt-BR", options);
   };
 
-  const handlePhoneNumberChange = (e) => {
-    setPhoneNumber(e);
+  const handlePhoneNumberChange = (value: string) => {
+    setPhoneNumber(value);
   };
 
   return (
@@ -178,7 +168,9 @@ export function AppointmentDrawer({
                 value={selectedClient?.id}
                 onChange={(value) => {
                   const client = clients.find((c) => c.id === value);
-                  onClientSelect(client);
+                  if (client) {
+                    onClientSelect(client);
+                  }
                 }}
                 clients={clients}
               />

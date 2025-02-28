@@ -15,8 +15,72 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AgendAI",
-  description: "Schedule Barber",
+  title: "Gendaia | AI que agenda!",
+  description:
+    "Agende seus serviços de forma inteligente com a Gendaia. Nossa IA torna o agendamento mais fácil, rápido e eficiente para você e seus clientes.",
+  keywords: [
+    "agendamento",
+    "IA",
+    "inteligência artificial",
+    "serviços",
+    "agenda online",
+    "barbearia",
+    "salão",
+    "automatização",
+    "sistema de agendamento",
+    "agendamento de serviços",
+    "agendamento de barbearia",
+    "agendamento de salão",
+  ],
+  authors: [{ name: "Gendaia" }],
+  creator: "Gendaia",
+  publisher: "Gendaia",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL("https://gendaia.com"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Gendaia | AI que agenda!",
+    description:
+      "Agende seus serviços de forma inteligente com a Gendaia. Nossa IA torna o agendamento mais fácil, rápido e eficiente.",
+    url: "https://gendaia.com",
+    siteName: "Gendaia",
+    locale: "pt_BR",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Gendaia - AI que agenda!",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gendaia | AI que agenda!",
+    description: "Agende seus serviços de forma inteligente com a Gendaia.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "adicione_seu_codigo_de_verificacao_google",
+  },
 };
 
 export default async function RootLayout({

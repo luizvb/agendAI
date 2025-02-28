@@ -97,7 +97,6 @@ export default function ChatSimulation({ chatType }: ChatSimulationProps) {
 
   const [started, setStarted] = useState(true);
   const [visibleMessages, setVisibleMessages] = useState<number[]>([]);
-  const [timer, setTimer] = useState(0);
 
   useEffect(() => {
     if (started) {
@@ -108,12 +107,6 @@ export default function ChatSimulation({ chatType }: ChatSimulationProps) {
         const timeout = setTimeout(() => {
           setVisibleMessages((prev) => [...prev, message.id]);
           currentIndex++;
-
-          if (currentIndex === messages.length) {
-            setTimeout(() => {
-              setTimer(47);
-            }, 1500);
-          }
         }, message.delay);
 
         intervals.push(timeout);
@@ -128,7 +121,6 @@ export default function ChatSimulation({ chatType }: ChatSimulationProps) {
   const handleStart = () => {
     setStarted(true);
     setVisibleMessages([]);
-    setTimer(0);
   };
 
   return (

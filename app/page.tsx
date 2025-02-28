@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ChatSimulation from "@/components/ChatSimulation";
+import { motion } from "framer-motion";
+import React from "react";
 
 export default function WebPage() {
   const { data: session } = useSession();
@@ -15,6 +17,12 @@ export default function WebPage() {
     minutes: 0,
     seconds: 0,
   });
+  const [titleIndex, setTitleIndex] = useState(0);
+  const titles = [
+    { highlight: "trabalho", text: "Onde o trabalho acontece" },
+    { highlight: "sucesso", text: "Onde o sucesso começa" },
+    { highlight: "negócio", text: "Onde seu negócio cresce" },
+  ];
 
   useEffect(() => {
     if (session) {
@@ -42,6 +50,13 @@ export default function WebPage() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTitleIndex((prev) => (prev + 1) % titles.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleWhatsAppClick = () => {
     window.open(
       "https://wa.me/5511999999999?text=Olá! Gostaria de saber mais sobre o AgendAI",
@@ -55,7 +70,7 @@ export default function WebPage() {
       <header className="fixed top-0 left-0 right-0 z-40 bg-white border-b">
         <nav className="max-w-[1360px] mx-auto px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <img src="/logo.png" alt="AgendAI Logo" className="h-24" />
+            <img src="/logopretocut.png" alt="AgendAI Logo" className="h-24" />
             <div className="hidden md:flex items-center gap-6"></div>
           </div>
 
@@ -90,9 +105,27 @@ export default function WebPage() {
       <main className="pt-16">
         <section className="max-w-[1360px] mx-auto px-5 py-20">
           <div className="text-center mb-8">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Onde o <span className="text-[#611f69]">trabalho</span> acontece
-            </h1>
+            <motion.h1
+              className="text-5xl md:text-6xl font-bold mb-6"
+              key={titleIndex}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
+              {titles[titleIndex].text
+                .split(titles[titleIndex].highlight)
+                .map((part, i) => (
+                  <React.Fragment key={i}>
+                    {part}
+                    {i === 0 && (
+                      <span className="text-[#611f69]">
+                        {titles[titleIndex].highlight}
+                      </span>
+                    )}
+                  </React.Fragment>
+                ))}
+            </motion.h1>
             <p className="text-xl text-slate-700 max-w-2xl mx-auto mb-8">
               Automatize seus agendamentos e nunca mais perca um cliente. Nossa
               IA trabalha 24h por dia para maximizar sua agenda.
@@ -201,7 +234,6 @@ export default function WebPage() {
                           el.playbackRate = 2.5;
                         }
                       }}
-                      // className="w-full"
                     />
                   </div>
                 </div>
@@ -428,7 +460,7 @@ export default function WebPage() {
         </section>
 
         {/* Pricing Section */}
-        <section className="py-20 bg-white px-6">
+        <section className="py-20 bg-white px-6" id="pricing">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">
               Planos que cabem no seu bolso
