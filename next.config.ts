@@ -24,6 +24,13 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        hostname: "**",
+      },
+    ],
+  },
   async rewrites() {
     const tenantId = process.env.LOGTO_TENANT_ID;
 

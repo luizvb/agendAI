@@ -18,6 +18,7 @@ import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 import {
   Sidebar,
@@ -29,6 +30,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { User } from "next-auth";
+import { useOrganization } from "@/hooks/useOrganization";
 
 const data = {
   navSecondary: [
@@ -84,6 +86,8 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const [orgName, setOrgName] = useState("Carregando...");
   const [loading, setLoading] = useState<string | null>(null);
+  const { organization } = useOrganization();
+  const router = useRouter();
 
   useEffect(() => {
     const name = localStorage.getItem("organization-name");
@@ -91,6 +95,17 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       setOrgName(name);
     }
   }, []);
+
+  useEffect(() => {
+    if (organization?.name) {
+      setOrgName(organization.name);
+      localStorage.setItem("organization-name", organization.name);
+    }
+  }, [organization]);
+
+  const handleOrgClick = () => {
+    router.push("/manage/company-profile");
+  };
 
   return (
     <Sidebar
@@ -101,9 +116,25 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#6c359b] text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOrgClick();
+                }}
+              >
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#6c359b] text-sidebar-primary-foreground overflow-hidden">
+                  {organization?.logo ? (
+                    <Image
+                      src={organization.logo}
+                      alt={orgName}
+                      width={32}
+                      height={32}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <Command className="size-4" />
+                  )}
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{orgName}</span>

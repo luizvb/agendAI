@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { organizationService } from "@/services/organizationService";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Textarea } from "@/components/ui/textarea";
+import { Upload, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface BusinessHours {
   [key: string]: {
@@ -19,6 +21,7 @@ interface CompanyProfile {
   name: string;
   description: string;
   businessHours: BusinessHours;
+  logo?: string;
 }
 
 export default function ManageCompanyProfile() {
@@ -26,6 +29,7 @@ export default function ManageCompanyProfile() {
   const [profile, setProfile] = useState<CompanyProfile>({
     name: "",
     description: "",
+    logo: "",
     businessHours: {
       monday: { start: "09:00", end: "18:00" },
       tuesday: { start: "09:00", end: "18:00" },
@@ -38,6 +42,8 @@ export default function ManageCompanyProfile() {
   });
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!organization) return;
@@ -62,6 +68,7 @@ export default function ManageCompanyProfile() {
     setProfile({
       name: organization.name ?? "",
       description: organization.description ?? "",
+      logo: organization.logo ?? "",
       businessHours: {
         monday: convertedBusinessHours.monday ?? {
           start: "09:00",
@@ -117,11 +124,65 @@ export default function ManageCompanyProfile() {
     }));
   };
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !organization?.id) return;
+
+    const file = e.target.files[0];
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem válida",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const logoUrl = await organizationService.uploadLogo(
+        organization.id,
+        file
+      );
+
+      setProfile((prev) => ({
+        ...prev,
+        logo: logoUrl,
+      }));
+
+      toast({
+        title: "Sucesso",
+        description: "Logo enviado com sucesso",
+      });
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível enviar o logo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!organization?.id) return;
 
     try {
+      setIsLoading(true);
       // Converter os horários de volta para o formato da API
       const convertedBusinessHours = Object.entries(
         profile.businessHours
@@ -141,7 +202,11 @@ export default function ManageCompanyProfile() {
         name: profile.name,
         description: profile.description,
         businessHours: convertedBusinessHours,
+        logo: profile.logo,
       });
+
+      // Update organization name in localStorage
+      localStorage.setItem("organization-name", profile.name);
 
       toast({
         title: "Sucesso",
@@ -154,6 +219,8 @@ export default function ManageCompanyProfile() {
         description: "Não foi possível atualizar o perfil",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -179,7 +246,41 @@ export default function ManageCompanyProfile() {
             <CardTitle>Perfil da Empresa</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex flex-col items-center mb-6">
+                <div className="relative w-32 h-32 mb-4 rounded-full overflow-hidden border-2 border-gray-200">
+                  {profile.logo ? (
+                    <Image
+                      src={profile.logo}
+                      alt="Logo da empresa"
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleLogoUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {isUploading ? "Enviando..." : "Enviar Logo"}
+                </Button>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Nome da Empresa
@@ -242,7 +343,9 @@ export default function ManageCompanyProfile() {
                 </div>
               </div>
 
-              <Button type="submit">Salvar</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Salvando..." : "Salvar"}
+              </Button>
             </form>
           </CardContent>
         </Card>

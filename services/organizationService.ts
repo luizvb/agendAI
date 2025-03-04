@@ -14,6 +14,7 @@ interface CreateOrganizationData {
   trialEndDate?: Date;
   services?: Array<{ name: string; duration: number; price: number }>;
   team?: Array<{ name: string; role: string; specialties: string[] }>;
+  logo?: string;
 }
 
 export const organizationService = {
@@ -35,6 +36,25 @@ export const organizationService = {
   ): Promise<Organization> {
     const response = await api.put(`/organizations/${id}`, data);
     return response.data;
+  },
+
+  async uploadLogo(organizationId: string, file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("organizationId", organizationId);
+
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to upload logo");
+    }
+
+    const data = await response.json();
+    return data.url;
   },
 
   async activateSubscription(
