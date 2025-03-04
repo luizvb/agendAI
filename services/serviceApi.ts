@@ -4,7 +4,7 @@ import { Service } from "@/types/service";
 interface CreateServiceDTO {
   name: string;
   price: number;
-  durationMinutes: number;
+  duration: number;
   description?: string;
 }
 

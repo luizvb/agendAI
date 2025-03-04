@@ -14,7 +14,7 @@ export interface Organization {
 export interface Service {
   name: string;
   price: string;
-  durationMinutes: number;
+  duration: number;
   isActive: boolean;
   id: number;
   description: string;

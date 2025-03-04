@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { type ThemeProviderProps } from "next-themes";
+import { Toaster } from "sonner";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -24,6 +25,7 @@ export default function Providers({ children, session }: ProvidersProps) {
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
         {children}
       </ThemeProvider>
+      <Toaster />
     </SessionProvider>
   );
 }

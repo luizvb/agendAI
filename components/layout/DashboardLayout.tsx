@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-import { OrganizationCheck } from "@/components/organization/OrganizationCheck";
+import { OrganizationGuard } from "@/components/auth/organization-guard";
 import { LoadingScreen } from "@/components/loading-screen";
 
 interface DashboardLayoutProps {
@@ -24,7 +24,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <OrganizationCheck>
+    <OrganizationGuard>
       <div className="min-h-screen bg-gray-50">
         <nav className="bg-white shadow-sm">
           <div className="container mx-auto px-4 py-3">
@@ -52,6 +52,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
         <main className="container mx-auto px-4 py-8">{children}</main>
       </div>
-    </OrganizationCheck>
+    </OrganizationGuard>
   );
 }

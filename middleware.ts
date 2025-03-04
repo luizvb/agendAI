@@ -8,14 +8,24 @@ export function middleware(request: NextRequest) {
     hostname.includes("localhost") || hostname.includes("127.0.0.1");
   const url = request.nextUrl.clone();
 
-  // Se for app.gendaia.com.br, continua normalmente
-  if (isAppDomain) {
+  // Em localhost, permite acesso a todas as rotas
+  if (isLocalhost) {
     return NextResponse.next();
   }
 
-  // Se for localhost ou gendaia.com.br e não estiver na landing page, redireciona para a landing page
-  if ((isLocalhost || !isAppDomain) && !url.pathname.startsWith("/")) {
-    url.pathname = "/(marketing)";
+  // Para app.gendaia.com.br - permite acesso ao dashboard e rotas do app
+  if (isAppDomain) {
+    // Se tentar acessar a landing page pelo domínio do app, redireciona para o dashboard
+    if (url.pathname === "/" || url.pathname.startsWith("/(marketing)")) {
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // Para gendaia.com.br - permite apenas acesso à landing page
+  if (!url.pathname.startsWith("/(marketing)") && url.pathname !== "/") {
+    url.pathname = "/";
     return NextResponse.redirect(url);
   }
 

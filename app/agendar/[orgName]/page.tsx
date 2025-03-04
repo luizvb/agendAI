@@ -32,7 +32,7 @@ interface Organization {
 interface Service {
   id: string;
   name: string;
-  durationMinutes: number;
+  duration: number;
   price: number;
 }
 
@@ -290,7 +290,7 @@ export default function SchedulePage() {
                         <circle cx="12" cy="12" r="10" />
                         <path d="M12 6v6l4 2" />
                       </svg>
-                      Duração: {service.durationMinutes} minutos
+                      Duração: {service.duration} minutos
                     </p>
                     <p className="text-sm text-gray-600 flex items-center gap-2">
                       <svg

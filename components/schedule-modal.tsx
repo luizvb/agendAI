@@ -99,6 +99,17 @@ export function ScheduleModal({
     }
   }, [showScheduleModal]);
 
+  // Effect para selecionar automaticamente o profissional quando há apenas um
+  useEffect(() => {
+    if (
+      showScheduleModal &&
+      professionals.length === 1 &&
+      !selectedProfessional
+    ) {
+      setSelectedProfessional(professionals[0]);
+    }
+  }, [showScheduleModal, professionals, selectedProfessional]);
+
   // Effect para atualizar horários quando qualquer dependência mudar
   useEffect(() => {
     if (
