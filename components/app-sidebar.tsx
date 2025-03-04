@@ -123,7 +123,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                   handleOrgClick();
                 }}
               >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-[#6c359b] text-sidebar-primary-foreground overflow-hidden">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg  text-sidebar-primary-foreground overflow-hidden">
                   {organization?.logo ? (
                     <Image
                       src={organization.logo}

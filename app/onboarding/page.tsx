@@ -462,8 +462,8 @@ export default function OnboardingPage() {
               </div>
               {formData.address.street && (
                 <>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="col-span-1 md:col-span-2">
                       <Label htmlFor="street">Rua</Label>
                       <Input
                         id="street"
@@ -505,7 +505,7 @@ export default function OnboardingPage() {
                       }
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="neighborhood">Bairro</Label>
                       <Input
@@ -552,7 +552,7 @@ export default function OnboardingPage() {
               {formData.services.map((service, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4"
                 >
                   <div className="flex items-center gap-4">
                     <button
@@ -563,7 +563,7 @@ export default function OnboardingPage() {
                     </button>
                     <span>{service.name}</span>
                   </div>
-                  <div className="flex items-center gap-6">
+                  <div className="flex flex-wrap items-center gap-4 md:gap-6">
                     <div className="flex items-center gap-2">
                       <span className="text-muted-foreground text-sm">
                         {service.price} reais
@@ -578,7 +578,7 @@ export default function OnboardingPage() {
                     <Button
                       variant="ghost"
                       onClick={() => handleEditService(index)}
-                      className="ml-4"
+                      className="ml-0 md:ml-4"
                     >
                       Editar
                     </Button>
@@ -588,7 +588,7 @@ export default function OnboardingPage() {
 
               {editingService ? (
                 <div className="border rounded-lg p-4">
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="editServiceName">Nome do serviço</Label>
                       <Input
@@ -654,7 +654,7 @@ export default function OnboardingPage() {
                 </div>
               ) : (
                 <div className="border rounded-lg p-4">
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="serviceName">Nome do serviço</Label>
                       <Input
@@ -720,7 +720,7 @@ export default function OnboardingPage() {
               {formData.professionals.map((professional, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg gap-4"
                 >
                   <div className="flex items-center gap-4">
                     <button
@@ -742,7 +742,7 @@ export default function OnboardingPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
                     {professional.specialties.map((specialty, i) => (
                       <span
                         key={i}
@@ -867,13 +867,16 @@ export default function OnboardingPage() {
 
             <div className="space-y-6">
               {Object.entries(formData.businessHours).map(([day, hours]) => (
-                <div key={day} className="flex items-center gap-4">
-                  <div className="w-32">
+                <div
+                  key={day}
+                  className="flex flex-col md:flex-row md:items-center gap-4"
+                >
+                  <div className="w-full md:w-32">
                     <Label>{weekDayTranslations[day]}</Label>
                   </div>
                   {hours ? (
-                    <>
-                      <div>
+                    <div className="flex flex-col md:flex-row gap-4 w-full">
+                      <div className="flex-1">
                         <Label>Abertura</Label>
                         <TimePicker
                           value={hours.start}
@@ -886,7 +889,7 @@ export default function OnboardingPage() {
                           }
                         />
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <Label>Fechamento</Label>
                         <TimePicker
                           value={hours.end}
@@ -899,21 +902,23 @@ export default function OnboardingPage() {
                           }
                         />
                       </div>
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          setFormData({
-                            ...formData,
-                            businessHours: {
-                              ...formData.businessHours,
-                              [day]: null,
-                            },
-                          })
-                        }
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </>
+                      <div className="flex items-end pb-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            setFormData({
+                              ...formData,
+                              businessHours: {
+                                ...formData.businessHours,
+                                [day]: null,
+                              },
+                            })
+                          }
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
                     <Button
                       variant="outline"
@@ -942,15 +947,15 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Left side - Progress */}
-      <div className="w-1/2 bg-primary p-12 text-white">
+      <div className="hidden md:block md:w-1/2 bg-primary p-12 text-white">
         <div className="mb-12">
           <Image
-            src="/logopretocut.png"
+            src="/logobrancocut.png"
             alt="Logo"
-            width={120}
-            height={60}
+            width={180}
+            height={100}
             className="mb-16"
           />
           <h1 className="text-4xl font-bold mb-4">
@@ -982,9 +987,42 @@ export default function OnboardingPage() {
       </div>
 
       {/* Right side - Form */}
-      <div className="w-1/2 p-12">
-        <div className="max-w-lg mx-auto">
-          <div className="flex justify-between items-center mb-8">
+      <div className="w-full md:w-1/2 p-6 md:p-12">
+        {/* Mobile header with logo and current step */}
+        <div className="md:hidden mb-8">
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={140}
+              height={80}
+              className="mb-4"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            {steps.map((s, i) => (
+              <div
+                key={i}
+                className={`w-2 h-2 rounded-full ${
+                  s.current
+                    ? "bg-primary"
+                    : s.completed
+                    ? "bg-primary/70"
+                    : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <h2 className="text-xl font-bold text-center">
+            {steps.find((s) => s.current)?.title}
+          </h2>
+          <p className="text-center text-muted-foreground mt-1">
+            Etapa {step} de {steps.length}
+          </p>
+        </div>
+
+        <div className="w-full max-w-lg mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 sm:gap-0">
             <button onClick={handleBack} className="text-muted-foreground">
               ← Voltar
             </button>
